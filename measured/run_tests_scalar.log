@@ -1,0 +1,73 @@
+Generating C++ processor model ...
+Running 'make verilate'
+make: Nothing to be done for 'verilate'.
+Building C++ processor model ...
+Running 'make build'
+make: Nothing to be done for 'build'.
+Collecting tests ...
+Running test all_inst ...
+Running 'make sim TEST_NAME=all_inst'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/all_inst.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 333
+Executed instructions: 257
+Running test array_sum ...
+Running 'make sim TEST_NAME=array_sum'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/array_sum.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 4632
+Executed instructions: 2572
+Running test array_sum_fast ...
+Running 'make sim TEST_NAME=array_sum_fast'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/array_sum_fast.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 1237
+Executed instructions: 1132
+Running test bubble_sort ...
+Running 'make sim TEST_NAME=bubble_sort'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/bubble_sort.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 9162
+Executed instructions: 4859
+Running test bubble_sort_fast ...
+Running 'make sim TEST_NAME=bubble_sort_fast'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/bubble_sort_fast.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 7482
+Executed instructions: 4394
+Running test fib_seq ...
+Running 'make sim TEST_NAME=fib_seq'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/fib_seq.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 11372
+Executed instructions: 7307
+Running test fib_seq_fast ...
+Running 'make sim TEST_NAME=fib_seq_fast'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/fib_seq_fast.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 11139
+Executed instructions: 7308
+Running test halt ...
+Running 'make sim TEST_NAME=halt'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/halt.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 13
+Executed instructions: 4
+Running test hazards ...
+Running 'make sim TEST_NAME=hazards'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/hazards.hex
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 582
+Executed instructions: 503
+Running test hello_world ...
+Running 'make sim TEST_NAME=hello_world'
+./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=out/tests/hello_world.hex
+ ----------------------------------------------- 
+|                                               |
+|   Hello World, I am Super RISC-V processor!   |
+|                                               |
+ ----------------------------------------------- 
+- tb/tb.sv:156: Verilog $finish
+Simulated cycles: 2024
+Executed instructions: 1260
+All tests passed

@@ -1,0 +1,448 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Thu Apr 11 23:52:07 2024
+[*]
+[timestart] 0
+[size] 1920 1009
+[pos] 1801 34
+*-5 45 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.tb.
+[treeopen] TOP.tb.core.
+[sst_width] 273
+[signals_width] 350
+[sst_expanded] 1
+[sst_vpaned_height] 388
+@28
+TOP.tb.core.clk
+TOP.tb.core.rst
+@c00200
+-IMEM interface
+@22
+TOP.tb.core.imem_haddr[31:0]
+@28
+TOP.tb.core.imem_hburst[2:0]
+TOP.tb.core.imem_hmastlock
+@22
+TOP.tb.core.imem_hprot[3:0]
+@28
+TOP.tb.core.imem_hsize[2:0]
+TOP.tb.core.imem_htrans[1:0]
+@22
+TOP.tb.core.imem_hwdata[63:0]
+@28
+TOP.tb.core.imem_hwrite
+@22
+TOP.tb.core.imem_hrdata[63:0]
+@28
+TOP.tb.core.imem_hready
+TOP.tb.core.imem_hresp
+@1401200
+-IMEM interface
+@c00200
+-DMEM interface
+@22
+TOP.tb.core.dmem_haddr[31:0]
+@28
+TOP.tb.core.dmem_hburst[2:0]
+TOP.tb.core.dmem_hmastlock
+@22
+TOP.tb.core.dmem_hprot[3:0]
+@28
+TOP.tb.core.dmem_hsize[2:0]
+TOP.tb.core.dmem_htrans[1:0]
+@22
+TOP.tb.core.dmem_hwdata[31:0]
+@28
+TOP.tb.core.dmem_hwrite
+@22
+TOP.tb.core.dmem_hrdata[31:0]
+@28
+TOP.tb.core.dmem_hready
+TOP.tb.core.dmem_hresp
+@1401200
+-DMEM interface
+@28
+TOP.tb.core.ifu0.fetch_en
+@22
+TOP.tb.core.ifu0.r_pc[31:0]
+@28
+TOP.tb.core.ifu0.ifu_take_jmp
+TOP.tb.core.ifu0.stall_ifu
+@c00200
+-IFU fetched inst
+@28
+[color] 2
+TOP.tb.core.ifu0.fetch_inst_p.i0_valid
+@22
+[color] 2
+TOP.tb.core.ifu0.fetch_inst_p.i0_inst[31:0]
+@28
+[color] 3
+TOP.tb.core.ifu0.fetch_inst_p.i1_valid
+@22
+[color] 3
+TOP.tb.core.ifu0.fetch_inst_p.i1_inst[31:0]
+TOP.tb.core.ifu0.fetch_inst_p.addr[31:0]
+@1401200
+-IFU fetched inst
+@800200
+-IFU next inst
+@28
+[color] 2
+TOP.tb.core.ifu0.ifu_inst_p.i0_valid
+@22
+[color] 2
+TOP.tb.core.ifu0.ifu_inst_p.i0_inst[31:0]
+@28
+[color] 3
+TOP.tb.core.ifu0.ifu_inst_p.i1_valid
+@22
+[color] 3
+TOP.tb.core.ifu0.ifu_inst_p.i1_inst[31:0]
+TOP.tb.core.ifu0.ifu_inst_p.addr[31:0]
+@1000200
+-IFU next inst
+@800200
+-DEC inst packet
+@28
+[color] 2
+TOP.tb.core.dec0.r_inst_p.i0_valid
+@22
+[color] 2
+TOP.tb.core.dec0.r_inst_p.i0_inst[31:0]
+@28
+[color] 3
+TOP.tb.core.dec0.r_inst_p.i1_valid
+@22
+[color] 3
+TOP.tb.core.dec0.r_inst_p.i1_inst[31:0]
+TOP.tb.core.dec0.r_inst_p.addr[31:0]
+@1000200
+-DEC inst packet
+@c00200
+-GPR register values
+@22
+TOP.tb.core.dec0.gpr0.r_regs(1)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(2)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(3)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(4)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(5)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(6)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(7)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(8)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(9)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(10)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(11)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(12)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(13)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(14)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(15)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(16)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(17)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(18)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(19)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(20)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(21)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(22)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(23)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(24)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(25)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(26)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(27)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(28)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(29)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(30)[31:0]
+TOP.tb.core.dec0.gpr0.r_regs(31)[31:0]
+@1401200
+-GPR register values
+@c00200
+-Inst decoder signals
+@28
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.rd
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.rs1
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.rs2
+@24
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.rd_addr[4:0]
+[color] 2
+TOP.tb.core.dec0.i0_inst_dec.rs1_addr[4:0]
+[color] 2
+TOP.tb.core.dec0.i0_inst_dec.rs2_addr[4:0]
+@28
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.rd
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.rs1
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.rs2
+@24
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.rd_addr[4:0]
+[color] 3
+TOP.tb.core.dec0.i1_inst_dec.rs1_addr[4:0]
+[color] 3
+TOP.tb.core.dec0.i1_inst_dec.rs2_addr[4:0]
+@c00200
+-Other decoder signals
+@28
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.agu
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.alu
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.bru
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.imm
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.lsu
+[color] 2
+TOP.tb.core.dec0.dec_i0_en_p.pc
+@100000028
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.agu_s1_sel[31:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.alu_opc[3:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.alu_s1_sel[31:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.alu_s2_sel[31:0]
+@22
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.extra_opc[3:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.imm[31:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.rs1_val[31:0]
+[color] 2
+TOP.tb.core.dec0.dec_i0_exec_p.rs2_val[31:0]
+@28
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.agu
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.alu
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.bru
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.imm
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.lsu
+[color] 3
+TOP.tb.core.dec0.dec_i1_en_p.pc
+@100000028
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.agu_s1_sel[31:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.alu_opc[3:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.alu_s1_sel[31:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.alu_s2_sel[31:0]
+@22
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.extra_opc[3:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.imm[31:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.rs1_val[31:0]
+[color] 3
+TOP.tb.core.dec0.dec_i1_exec_p.rs2_val[31:0]
+@1401200
+-Other decoder signals
+-Inst decoder signals
+@28
+[color] 2
+TOP.tb.core.dec0.dec_i0_valid
+[color] 3
+TOP.tb.core.dec0.dec_i1_valid
+@c00200
+-DEC hazard signals
+@28
+[color] 2
+TOP.tb.core.dec0.i0_waits_for_fwd
+[color] 3
+TOP.tb.core.dec0.i1_waits_for_fwd
+[color] 2
+TOP.tb.core.dec0.run_i0_first
+[color] 2
+TOP.tb.core.dec0.i0_ready
+[color] 3
+TOP.tb.core.dec0.i1_ready
+TOP.tb.core.dec0.dec_ready
+@1401200
+-DEC hazard signals
+@c00200
+-EXU internal signals
+@28
+[color] 2
+TOP.tb.core.exu0.r_i0_valid
+[color] 3
+TOP.tb.core.exu0.r_i1_valid
+@c00200
+-EX1 signals
+@28
+[color] 2
+TOP.tb.core.exu0.r_i0_bru_en
+[color] 2
+TOP.tb.core.exu0.r_i0_lsu_en
+[color] 2
+TOP.tb.core.exu0.r_i0_rd_en
+@22
+[color] 2
+TOP.tb.core.exu0.i0_final_rs1_val[31:0]
+[color] 2
+TOP.tb.core.exu0.i0_final_rs2_val[31:0]
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.imm[31:0]
+[color] 2
+TOP.tb.core.exu0.i0_pc_val[31:0]
+@100000028
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.alu_s1_sel[31:0]
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.alu_s2_sel[31:0]
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.alu_opc[3:0]
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.agu_s1_sel[31:0]
+@28
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.extra_opc[3:0]
+@24
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.rd_addr[4:0]
+@28
+[color] 3
+TOP.tb.core.exu0.r_i1_bru_en
+[color] 3
+TOP.tb.core.exu0.r_i1_lsu_en
+[color] 3
+TOP.tb.core.exu0.r_i1_rd_en
+@22
+[color] 3
+TOP.tb.core.exu0.i1_final_rs1_val[31:0]
+[color] 3
+TOP.tb.core.exu0.i1_final_rs2_val[31:0]
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.imm[31:0]
+[color] 3
+TOP.tb.core.exu0.i1_pc_val[31:0]
+@100000028
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.agu_s1_sel[31:0]
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.alu_s1_sel[31:0]
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.alu_opc[3:0]
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.agu_s1_sel[31:0]
+@28
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.extra_opc[3:0]
+@24
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.rd_addr[4:0]
+@1401200
+-EX1 signals
+@28
+[color] 2
+TOP.tb.core.exu0.r_ex2_i0_valid
+[color] 3
+TOP.tb.core.exu0.r_ex2_i1_valid
+@c00200
+-EX2 signals
+@100000028
+[color] 2
+TOP.tb.core.exu0.r_ex2_i0_pipe[31:0]
+@28
+[color] 2
+TOP.tb.core.exu0.r_ex2_i0_rd_en
+@24
+[color] 2
+TOP.tb.core.exu0.r_ex2_i0_rd_addr[4:0]
+@22
+[color] 2
+TOP.tb.core.exu0.r_ex2_i0_rd_val[31:0]
+@100000028
+[color] 3
+TOP.tb.core.exu0.r_ex2_i1_pipe[31:0]
+@28
+[color] 3
+TOP.tb.core.exu0.r_ex2_i1_rd_en
+@24
+[color] 3
+TOP.tb.core.exu0.r_ex2_i1_rd_addr[4:0]
+@22
+[color] 3
+TOP.tb.core.exu0.r_ex2_i1_rd_val[31:0]
+@1401200
+-EX2 signals
+@28
+[color] 2
+TOP.tb.core.exu0.r_ex3_i0_valid
+[color] 3
+TOP.tb.core.exu0.r_ex3_i1_valid
+@c00200
+-EX3 signals
+@100000028
+[color] 2
+TOP.tb.core.exu0.r_ex3_i0_pipe[31:0]
+@28
+[color] 2
+TOP.tb.core.exu0.r_ex3_i0_rd_en
+@24
+[color] 2
+TOP.tb.core.exu0.r_ex3_i0_rd_addr[4:0]
+@22
+[color] 2
+TOP.tb.core.exu0.r_ex3_i0_rd_val[31:0]
+@100000028
+[color] 3
+TOP.tb.core.exu0.r_ex3_i1_pipe[31:0]
+@28
+[color] 3
+TOP.tb.core.exu0.r_ex3_i1_rd_en
+@24
+[color] 3
+TOP.tb.core.exu0.r_ex3_i1_rd_addr[4:0]
+@22
+[color] 3
+TOP.tb.core.exu0.r_ex3_i1_rd_val[31:0]
+@1401200
+-EX3 signals
+-EXU internal signals
+@28
+[color] 2
+TOP.tb.core.exu0.r_wb_i0_valid
+[color] 3
+TOP.tb.core.exu0.r_wb_i1_valid
+@c00200
+-Result packet
+@28
+[color] 2
+TOP.tb.core.exu0.exu_res_p.i0_valid
+@24
+[color] 2
+TOP.tb.core.exu0.exu_res_p.i0_addr[4:0]
+@22
+[color] 2
+TOP.tb.core.exu0.exu_res_p.i0_val[31:0]
+@28
+[color] 3
+TOP.tb.core.exu0.exu_res_p.i1_valid
+@24
+[color] 3
+TOP.tb.core.exu0.exu_res_p.i1_addr[4:0]
+@22
+[color] 3
+TOP.tb.core.exu0.exu_res_p.i1_val[31:0]
+@1401200
+-Result packet
+@420
+TOP.tb.cycles
+TOP.tb.inst_ret
+[pattern_trace] 1
+[pattern_trace] 0
