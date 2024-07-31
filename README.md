@@ -1,6 +1,6 @@
 # Super RISC-V Processor
 
-This repository contains the master's thesis focusing on the development of a superscalar RISC-V processor written in SystemVerilog hardware description language. The repository contains both the source code files and the thesis text.
+This repository contains the master's thesis focusing on the development of a superscalar RISC-V processor written in SystemVerilog hardware description language. The repository contains the source code files and the thesis text is available on [the university website](https://www.vut.cz/en/students/final-thesis/detail/155087).
 
 ![Super RISC-V pipeline diagram](super-riscv-pipeline.png)
 
@@ -18,13 +18,10 @@ The created processor is called "Super RISC-V" to highlight its superscalar capa
 ## Repository Structure
 
 * `measured` - processor performance data
-* `slides` - created presentations
 * `specs` - related specifications
 * `src` - source code files root
-* `thesis` - sources of the thesis
 * `README.md` - this file
 * `super-riscv-pipeline.png` - processor pipeline diagram
-* `thesis.pdf` - final thesis PDF document
 
 ### Source Code Structure
 
