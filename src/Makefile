@@ -37,10 +37,10 @@ VERILATOR = verilator
 GTKWAVE = gtkwave
 
 # RISC-V tools
-RV_AS = riscv32-unknown-elf-as
-RV_LD = riscv32-unknown-elf-ld
-RV_OBJCOPY = riscv32-unknown-elf-objcopy
-RV_OBJDUMP = riscv32-unknown-elf-objdump
+RV_AS = riscv64-unknown-elf-as
+RV_LD = riscv64-unknown-elf-ld
+RV_OBJCOPY = riscv64-unknown-elf-objcopy
+RV_OBJDUMP = riscv64-unknown-elf-objdump
 
 SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
             $(RTL_DIR)/include/riscv_defs.sv\
@@ -119,7 +119,7 @@ $(OUT_TESTS_DIR)/%.o: $(TESTS_DIR)/%.s | $(OUT_TESTS_DIR)
 	$(RV_AS) -march=rv32i -mabi=ilp32 $< -o $@
 
 $(OUT_TESTS_DIR)/%: $(OUT_TESTS_DIR)/%.o $(TESTS_DIR)/link.ld
-	$(RV_LD) -nostdlib -T $(TESTS_DIR)/link.ld $< -o $@
+	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
 
 $(OUT_TESTS_DIR)/%.hex: $(OUT_TESTS_DIR)/%
 	$(RV_OBJCOPY) -O verilog $< $@

@@ -51,7 +51,7 @@ assign rs2 = inst[24:20];
 assign rs1 = inst[19:15];
 assign funct3 = inst[14:12];
 assign rd = inst[11:7];
-assign opcode = inst[6:0];
+assign opcode = opcode_t'(inst[6:0]);
 
 // initialize enable packet
 assign en_p.rs1 = opcode inside {OPC_JALR, OPC_BRANCH, OPC_LOAD, OPC_STORE, OPC_OP_IMM, OPC_OP};
@@ -97,23 +97,23 @@ always_comb begin : alu_ctl
         OPC_LUI:                        alu_s1_sel = ALU_S1_0;
         OPC_AUIPC, OPC_JAL, OPC_JALR:   alu_s1_sel = ALU_S1_PC;
         OPC_BRANCH, OPC_OP_IMM, OPC_OP: alu_s1_sel = ALU_S1_RS1;
-        default:                        alu_s1_sel = 'x;
+        default:                        alu_s1_sel = alu_s1_mux_t'('x);
     endcase
 
     case (opcode)
         OPC_JAL, OPC_JALR:              alu_s2_sel = ALU_S2_4;
         OPC_LUI, OPC_AUIPC, OPC_OP_IMM: alu_s2_sel = ALU_S2_IMM;
         OPC_BRANCH, OPC_OP:             alu_s2_sel = ALU_S2_RS2;
-        default:                        alu_s2_sel = 'x;
+        default:                        alu_s2_sel = alu_s2_mux_t'('x);
     endcase
 
     case (opcode)
-        OPC_OP: alu_opc = {funct7[5], funct3};
+        OPC_OP: alu_opc = alu_opcode_t'({funct7[5], funct3});
         OPC_OP_IMM: begin
             if (funct3 == FN3_SRL_SRA)
-                alu_opc = {funct7[5], funct3};
+                alu_opc = alu_opcode_t'({funct7[5], funct3});
             else
-                alu_opc = {1'b0, funct3};
+                alu_opc = alu_opcode_t'({1'b0, funct3});
         end
         OPC_BRANCH: begin
             if (funct3 inside {FN3_BLTU, FN3_BGEU})
@@ -122,7 +122,7 @@ always_comb begin : alu_ctl
                 alu_opc = ALU_SLT;
         end
         OPC_LUI, OPC_AUIPC, OPC_JAL, OPC_JALR: alu_opc = ALU_ADD;
-        default: alu_opc = 'x;
+        default: alu_opc = alu_opcode_t'('x);
     endcase
 end
 
@@ -130,7 +130,7 @@ always_comb begin : agu_ctl
     case (opcode)
         OPC_JALR, OPC_LOAD, OPC_STORE: agu_s1_sel = AGU_S1_RS1;
         OPC_JAL, OPC_BRANCH:           agu_s1_sel = AGU_S1_PC;
-        default:                       agu_s1_sel = 'x;
+        default:                       agu_s1_sel = agu_s1_mux_t'('x);
     endcase
 end
 
