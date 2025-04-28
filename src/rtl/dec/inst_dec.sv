@@ -44,6 +44,7 @@ logic [4:0] rs2;
 logic [4:0] rs1;
 logic [2:0] funct3;
 logic [4:0] rd;
+// TODO: use 5-bit opcode instead of full length
 opcode_t opcode;
 
 assign funct7 = inst[31:25];

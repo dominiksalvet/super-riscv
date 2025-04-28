@@ -82,7 +82,7 @@ assign dmem_htrans =    {r_ex2_lsu_p.valid, 1'b0}; // only nonsequential transfe
 assign dmem_hwrite =    r_ex2_lsu_p.opc[3];
 
 logic        r_ex3_valid;
-logic [2:0]  r_ex3_load_opc;
+load_fn3_t   r_ex3_load_opc;
 logic [1:0]  r_ex3_low_addr;
 logic [31:0] r_ex3_wdata;
 
@@ -92,11 +92,11 @@ always_ff @(posedge clk) begin : data_phase
     else begin
         if (r_ex2_lsu_p.valid) begin
             if (r_ex2_lsu_p.opc[3] == OPC_LOAD[5]) begin
-                r_ex3_load_opc <= r_ex2_lsu_p.opc[2:0];
+                r_ex3_load_opc <= load_fn3_t'(r_ex2_lsu_p.opc[2:0]);
                 r_ex3_low_addr <= r_ex2_lsu_p.addr[1:0];
             end else begin
                 case (r_ex2_lsu_p.opc[1:0])
-                    2'b00:
+                    FN3_SB[1:0]:
                         case (r_ex2_lsu_p.addr[1:0])
                             2'b00: r_ex3_wdata[7:0] <= r_ex2_lsu_p.wdata[7:0];
                             2'b01: r_ex3_wdata[15:8] <= r_ex2_lsu_p.wdata[7:0];
@@ -104,13 +104,13 @@ always_ff @(posedge clk) begin : data_phase
                             2'b11: r_ex3_wdata[31:24] <= r_ex2_lsu_p.wdata[7:0];
                         endcase
 
-                    2'b01:
+                    FN3_SH[1:0]:
                         if (r_ex2_lsu_p.addr[1])
                             r_ex3_wdata[31:16] <= r_ex2_lsu_p.wdata[15:0];
                         else
                             r_ex3_wdata[15:0] <= r_ex2_lsu_p.wdata[15:0];
 
-                    2'b10: r_ex3_wdata <= r_ex2_lsu_p.wdata;
+                    FN3_SW[1:0]: r_ex3_wdata <= r_ex2_lsu_p.wdata;
                     default;
                 endcase
             end
@@ -144,11 +144,11 @@ always_comb begin : prepare_read_data
         ex3_load_halfword = dmem_hrdata[15:0];
 
     case (r_ex3_load_opc)
-        3'b000:  lsu_rdata = 32'(  signed'(ex3_load_byte));
-        3'b100:  lsu_rdata = 32'(unsigned'(ex3_load_byte));
-        3'b001:  lsu_rdata = 32'(  signed'(ex3_load_halfword));
-        3'b101:  lsu_rdata = 32'(unsigned'(ex3_load_halfword));
-        3'b010:  lsu_rdata = dmem_hrdata;
+        FN3_LB:  lsu_rdata = 32'(  signed'(ex3_load_byte));
+        FN3_LBU: lsu_rdata = 32'(unsigned'(ex3_load_byte));
+        FN3_LH:  lsu_rdata = 32'(  signed'(ex3_load_halfword));
+        FN3_LHU: lsu_rdata = 32'(unsigned'(ex3_load_halfword));
+        FN3_LW:  lsu_rdata = dmem_hrdata;
         default: lsu_rdata = 'x;
     endcase
 end
