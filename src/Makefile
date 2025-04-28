@@ -123,6 +123,7 @@ $(OUT_TESTS_DIR)/%: $(OUT_TESTS_DIR)/%.o $(TESTS_DIR)/link.ld
 
 $(OUT_TESTS_DIR)/%.hex: $(OUT_TESTS_DIR)/%
 	$(RV_OBJCOPY) -O verilog $< $@
+	chmod -x $@
 
 $(OUT_TESTS_DIR)/%.dis: $(OUT_TESTS_DIR)/%
 	$(RV_OBJDUMP) -D -M numeric,no-aliases $< > $@.tmp
