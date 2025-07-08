@@ -98,7 +98,7 @@ typedef struct packed {
     alu_s2_mux_t alu_s2_sel;
     alu_opcode_t alu_opc;
     agu_s1_mux_t agu_s1_sel;
-    logic [3:0]  extra_opc;
+    logic [3:0]  extra_opc; // described in inst_dec
     logic [4:0]  rd_addr;
 } exec_pkt_t;
 

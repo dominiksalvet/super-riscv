@@ -136,7 +136,9 @@ end
 
 always_comb begin : extra_ctl
     case (opcode)
+        // opcode[2]: 0 - branch, 1 - jump
         OPC_JAL, OPC_JALR, OPC_BRANCH:  extra_opc = {opcode[2], funct3};
+        // opcode[5]: 0 - load, 1 - store
         OPC_LOAD, OPC_STORE:            extra_opc = {opcode[5], funct3};
         default:                        extra_opc = 'x;
     endcase
