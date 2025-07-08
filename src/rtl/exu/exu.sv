@@ -164,7 +164,6 @@ assign i1_pc_val = {r_pc_val[31:3], 1'b1, r_pc_val[1:0]};
 // operand forwarding in EX1 stage
 logic [31:0] i0_final_rs1_val, i0_final_rs2_val, i1_final_rs1_val, i1_final_rs2_val;
 
-// TODO: consider data path gating to reduce switching activity
 always_comb begin : forward_values
     case (r_i0_rs1_fwd_src)
         FWD_EX2_I1: i0_final_rs1_val = r_ex2_i1_rd_val;
@@ -296,7 +295,6 @@ bru bru0 (
     .jmp_addr(bru_jmp_addr)
 );
 
-// TODO: consider taking jump even when EXU stalls but no RD write caused by jump
 assign ifu_take_jmp = bru_take_jmp && exu_ready;
 assign ifu_jmp_addr = bru_jmp_addr;
 

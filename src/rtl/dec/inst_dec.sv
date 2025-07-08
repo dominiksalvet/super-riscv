@@ -74,7 +74,6 @@ assign rd_addr = rd;
 // immediate value decoding
 logic [31:0] i_imm, s_imm, b_imm, u_imm, j_imm;
 
-// TODO: consider immediate extending in EX1 stage
 assign i_imm = 32'(signed'(inst[31:20]));
 assign s_imm = 32'(signed'({inst[31:25], inst[11:7]}));
 assign b_imm = 32'(signed'({inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}));

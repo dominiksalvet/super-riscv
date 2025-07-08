@@ -42,7 +42,6 @@ assign empty = !r_full && r_wptr == r_rptr;
 assign push = (in_inst_p.i0_valid || in_inst_p.i1_valid) && (!empty || !use_out);
 assign pop = use_out && !empty;
 
-// TODO: consider partial i0/i1 writes
 always_ff @(posedge clk) begin : fifo
     if (rst || flush) begin
         r_wptr <= 1'b0;

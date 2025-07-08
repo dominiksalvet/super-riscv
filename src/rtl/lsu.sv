@@ -58,15 +58,8 @@ always_ff @(posedge clk) begin : address_phase
             r_ex2_lsu_p.opc <= lsu_p.opc;
             r_ex2_lsu_p.addr <= lsu_p.addr;
 
-            if (lsu_p.opc[3] == OPC_STORE[5]) begin
-                r_ex2_lsu_p.wdata[7:0] <= lsu_p.wdata[7:0]; // byte and wider
-
-                if (lsu_p.opc[0] || lsu_p.opc[1]) // halfword and wider
-                    r_ex2_lsu_p.wdata[15:8] <= lsu_p.wdata[15:8];
-
-                if (lsu_p.opc[1]) // word
-                    r_ex2_lsu_p.wdata[31:16] <= lsu_p.wdata[31:16];
-            end
+            if (lsu_p.opc[3] == OPC_STORE[5])
+                r_ex2_lsu_p.wdata <= lsu_p.wdata;
         end
 
         r_ex2_lsu_p.valid <= lsu_p.valid;
