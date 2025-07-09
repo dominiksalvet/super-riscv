@@ -63,7 +63,6 @@ assign en_p.alu = opcode inside {OPC_LUI, OPC_AUIPC, OPC_JAL, OPC_JALR, OPC_BRAN
 assign en_p.agu = opcode inside {OPC_JAL, OPC_JALR, OPC_BRANCH, OPC_LOAD, OPC_STORE};
 assign en_p.bru = opcode inside {OPC_JAL, OPC_JALR, OPC_BRANCH};
 assign en_p.lsu = opcode inside {OPC_LOAD, OPC_STORE};
-// TODO: consider clearing rd enable bit when rd_addr==0
 assign en_p.rd = opcode inside {OPC_LUI, OPC_AUIPC, OPC_JAL, OPC_JALR, OPC_LOAD, OPC_OP_IMM, OPC_OP};
 
 // prepare operands

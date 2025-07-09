@@ -66,8 +66,6 @@ fwd_src_t    r_i0_rs2_fwd_src, r_i1_rs2_fwd_src;
 logic [31:0] r_pc_val;
 
 // TODO: remove all data registers from rst paths
-// TODO: consider whether simplify some write enable logic (rs1/2 val, imm, ...)
-// TODO: consider filling empty EXU stages (ex1, ex2, ...) when EXU is stalling as a whole
 always_ff @(posedge clk) begin : catch_decoded
     if (rst || ifu_take_jmp) begin
         r_i0_valid <= 1'b0;

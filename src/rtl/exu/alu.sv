@@ -43,7 +43,6 @@ logic adder_cout;
 
 assign {adder_cout, adder_res} = adder_s1 + adder_s2 + {32'b0, adder_sub};
 
-// TODO: consider mapping all shifts into one
 always_comb begin : calculations
     case (opc)
         ALU_ADD, ALU_SUB:  res = adder_res;

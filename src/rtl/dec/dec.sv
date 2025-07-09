@@ -182,7 +182,6 @@ assign i1_uses_i0_rd = (i1_en_p.rs1 && i1_rs1_addr == i0_rd_addr) || (i1_en_p.rs
 // uncomment last part for instruction serialization (single-issue execution)
 assign run_i0_first = (i0_modifies_rd && i1_uses_i0_rd) || (i0_en_p.lsu && i1_en_p.lsu) /* || 1'b1 */;
 
-// TODO: consider memory instructions fusion based on simple deterministic issue slots pattern
 assign i0_ready = !(r_inst_p.i0_valid && i0_waits_for_fwd);
 assign i1_ready = !(r_inst_p.i1_valid && (i1_waits_for_fwd || (r_inst_p.i0_valid && run_i0_first)));
 assign dec_ready = i0_ready && i1_ready;

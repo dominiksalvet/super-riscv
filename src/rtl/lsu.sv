@@ -119,7 +119,6 @@ assign lsu_addr_wait = 1'b0;
 assign lsu_resp_wait = 1'b0;
 assign lsu_resp_valid = r_ex3_valid;
 
-// TODO: check the path length of hrdata to a register
 always_comb begin : prepare_read_data
     logic [7:0]  ex3_load_byte;
     logic [15:0] ex3_load_halfword;
