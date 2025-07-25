@@ -17,19 +17,31 @@
 #
 
 name: Run Tests
-
 on: [push, pull_request]
 
 jobs:
-  test:
-
+  Testing:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout commit
+      uses: actions/checkout@v4
 
     - name: Install dependencies
       run: sudo apt install -y make verilator gcc gcc-riscv64-unknown-elf
 
-    - name: Build and test
+    - name: Build design
+      run: make build
+
+    - name: Run Hello World
+      run: make hello_world
+
+    - name: Compile and run tests
       run: ./run_tests.sh
+
+    - name: Upload testing report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: run_tests_report
+        path: out/run_tests.log
