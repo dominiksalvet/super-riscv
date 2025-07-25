@@ -28,10 +28,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install dependencies
-      uses: awalsh128/cache-apt-pkgs-action@v1.5.1
-      with:
-        packages: verilator gcc-riscv64-unknown-elf
-        version: 1.0
+      run: sudo apt-get install -y verilator gcc-riscv64-unknown-elf
 
     - name: Build design
       run: make build

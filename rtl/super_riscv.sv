@@ -57,6 +57,8 @@ logic        ifu_take_jmp;
 logic [31:0] ifu_jmp_addr;
 inst_pkt_t   ifu_inst_p;
 
+ifu ifu0 (.*);
+
 logic        dec_i0_valid,       dec_i1_valid;
 enable_pkt_t dec_i0_en_p,        dec_i1_en_p;
 exec_pkt_t   dec_i0_exec_p,      dec_i1_exec_p;
