@@ -1,6 +1,6 @@
 # Super RISC-V Processor
 
-This repository contains the master's thesis focusing on the development of a superscalar RISC-V processor written in SystemVerilog hardware description language. The repository contains the source code files and the thesis text is available on [the university website](https://www.vut.cz/en/students/final-thesis/detail/155087).
+This repository contains a superscalar dual-issue RISC-V processor written in SystemVerilog hardware description language. This work was initiated by a master thesis, which is available on [the BUT university website](https://www.vut.cz/en/students/final-thesis/detail/155087).
 
 ![Super RISC-V pipeline diagram](super-riscv-pipeline.png)
 
@@ -17,22 +17,16 @@ The created processor is called "Super RISC-V" to highlight its superscalar capa
 
 ## Repository Structure
 
-* `measured` - processor performance data
-* `specs` - related specifications
-* `src` - source code files root
+* `out` - generated files (created when required)
+* `rtl` - processor design files
+* `tb` - base used for processor testing
+* `tests` - individual tests
+* `utils` - other useful files
+* `LICENSE` - license for source code files
+* `Makefile` - entry point for user commands
 * `README.md` - this file
+* `run_tests.sh` - automated test runner
 * `super-riscv-pipeline.png` - processor pipeline diagram
-
-### Source Code Structure
-
-* `src/out` - generated files (created when required)
-* `src/rtl` - processor design files
-* `src/tb` - base used for processor testing
-* `src/tests` - individual tests
-* `src/utils` - other useful files
-* `src/LICENSE` - license for source code files
-* `src/Makefile` - entry point for user commands
-* `src/run_tests.sh` - automated test runner
 
 ## Processor Simulation
 
@@ -53,15 +47,13 @@ Optionally:
 * [RISC-V GCC](https://github.com/riscv-collab/riscv-gnu-toolchain) for RISC-V programs compilation
 * [GTKWave](https://gtkwave.sourceforge.net/) for displaying signal traces
 
-> All listed tools are available for the reference system, Ubuntu 22.04:
+> All listed tools are easily available for the reference system, Ubuntu 24.04:
 >
-> * `sudo apt install make verilator gcc gtkwave`
-> * RISC-V GCC might be obtained precompiled for Ubuntu 22.04 from [its GitHub releases](https://github.com/riscv-collab/riscv-gnu-toolchain/releases) and added to `PATH` manually
->   * For testing, `riscv32-elf-ubuntu-22.04-gcc-nightly-2024.03.01-nightly.tar.gz` was used
+> * `sudo apt install make verilator gcc gcc-riscv64-unknown-elf gtkwave`
 
 ### How to Run Simulation
 
-First, open a terminal emulator in the `src` directory, where a `Makefile` is located. Then run `make hello_world`, which translates the SystemVerilog (SV) processor description into a C++ model, compiles the C++ model, and runs a processor simulation with a precompiled "Hello World" program loaded in the processor's memory. All generated files can be found in the `out` directory. This is a convenient way of testing that the build system works. Among others, the output should include something like this:
+First, open a terminal emulator in the repository root directory, where a `Makefile` is located. Then run `make hello_world`, which translates the SystemVerilog (SV) processor description into a C++ model, compiles the C++ model, and runs a processor simulation with a precompiled "Hello World" program loaded in the processor's memory. All generated files can be found in the `out` directory. This is a convenient way of testing that the build system works. Among others, the output should include something like this:
 
 ```
 ./out/build/Vtb +verilator+noassert +verilator+rand+reset+0 +test+path=utils/hello_world.hex
@@ -125,4 +117,4 @@ Let a test fail due to constraining its cycle count:
 
 Since the created `Makefile` is targetted mainly for direct use by users, an automated way of processor testing was also required. The `run_tests.sh` shell script does exactly that. It uses already-existing targets of the `Makefile` to support its reuse.
 
-To use the test runner, first, change the directory to `src` (if not already done). Then execute `./run_tests.sh`. It automatically builds the C++ processor model, collects tests from the `tests` directory, and runs them appropriately. The main report is printed directly to the terminal, all output can be found in a generated log file.
+To use the test runner, execute `./run_tests.sh`. It automatically builds the C++ processor model, collects tests from the `tests` directory, and runs them appropriately. The main report is printed directly to the terminal, all output can be found in a generated log file in the `out` directory.
