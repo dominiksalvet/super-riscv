@@ -1,0 +1,50 @@
+#
+#   Super RISC-V - superscalar dual-issue RISC-V processor
+#   Copyright (C) 2025 Dominik Salvet
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+name: Run Tests
+on: [push, pull_request]
+
+jobs:
+  Testing:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout commit
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      uses: awalsh128/cache-apt-pkgs-action@4c82c3ccdc1344ee11e9775dbdbdf43aa8a5614e
+      with:
+        packages: verilator gcc-riscv64-unknown-elf
+        version: 1.0
+
+    - name: Build design
+      run: make build
+
+    - name: Run Hello World
+      run: make hello_world
+
+    - name: Compile and run tests
+      run: ./run_tests.sh
+
+    - name: Upload testing report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: run_tests_report
+        path: out/run_tests.log
