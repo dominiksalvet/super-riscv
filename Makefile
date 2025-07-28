@@ -1,6 +1,6 @@
 #
 #   Super RISC-V - superscalar dual-issue RISC-V processor
-#   Copyright (C) 2024 Dominik Salvet
+#   Copyright (C) 2024-2025 Dominik Salvet
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 # ACCEPTED MACROS:
 #   ASSERTS=1           enable SV assertions
 #   MAX_CYCLES=<value>  max cycles of simulation
+#   TEST_GROUP=<group>  selected group of tests
 #   TEST_NAME=<name>    test to be run on the CPU
 #   WAVES_FILE=<path>   path of output signal waves file
 #   X_VAL=0|1|2         unknown values in SV are replaced with:
@@ -29,8 +30,11 @@ RTL_DIR = rtl
 TB_DIR = tb
 TESTS_DIR = tests
 UTILS_DIR = utils
+
 # out directory is used for generated files
 OUT_DIR = out
+BUILD_DIR = $(OUT_DIR)/build
+OUT_TESTS_DIR = $(OUT_DIR)/tests
 
 # TODO: consider support for other simulators (free, student editions, ...)
 VERILATOR = verilator
@@ -39,6 +43,7 @@ GTKWAVE = gtkwave
 # RISC-V tools
 RV_AS = riscv64-unknown-elf-as
 RV_LD = riscv64-unknown-elf-ld
+RV_GCC = riscv64-unknown-elf-gcc
 RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
 
@@ -63,16 +68,14 @@ TOP_MODULE = tb
 CPP_WRAPPER = $(abspath $(TB_DIR)/$(TOP_MODULE)_wrapper.cpp)
 TOP_CLASS = V$(TOP_MODULE)
 
-# out directory structure
-BUILD_DIR = $(OUT_DIR)/build
-OUT_TESTS_DIR = $(OUT_DIR)/tests
-
 # process accepted macros
+TEST_GROUP ?= simple_asm
 TEST_NAME ?= hello_world
 WAVES_FILE ?= $(OUT_DIR)/waves.fst
 X_VAL ?= 0
 
-TEST_PREFIX = $(OUT_TESTS_DIR)/$(TEST_NAME)
+TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
+TEST_PREFIX = $(TEST_BUILD_DIR)/$(TEST_NAME)
 EXEC_FLAGS =
 
 # prepare execution flags for CPU simulator
@@ -87,6 +90,15 @@ ifdef SEED
     EXEC_FLAGS += +verilator+seed+$(SEED)
 endif
 EXEC_FLAGS += +test+path=$(TEST_PREFIX).hex
+
+# extra arguments for building tests (programs)
+TEST_BUILD_ARGS = \
+    RV_AS=$(RV_AS) \
+    RV_LD=$(RV_LD) \
+    RV_GCC=$(RV_GCC) \
+    TESTS_DIR=$(abspath $(TESTS_DIR)) \
+    TEST_BUILD_DIR=$(abspath $(TEST_BUILD_DIR)) \
+    TEST_NAME=$(TEST_NAME)
 
 # lint and transform RTL to C++ in default (quick check)
 verilate: $(BUILD_DIR)_verilated
@@ -111,21 +123,14 @@ $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex
 
-# TODO: create more universal test compilation (individual makefiles, C programs, use GCC, ...)
-$(OUT_TESTS_DIR):
-	mkdir -p $@
+$(TEST_PREFIX):
+	$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) $(TEST_BUILD_ARGS)
 
-$(OUT_TESTS_DIR)/%.o: $(TESTS_DIR)/%.s | $(OUT_TESTS_DIR)
-	$(RV_AS) -march=rv32i -mabi=ilp32 $< -o $@
-
-$(OUT_TESTS_DIR)/%: $(OUT_TESTS_DIR)/%.o $(TESTS_DIR)/link.ld
-	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
-
-$(OUT_TESTS_DIR)/%.hex: $(OUT_TESTS_DIR)/%
+$(TEST_PREFIX).hex: $(TEST_PREFIX)
 	$(RV_OBJCOPY) -O verilog $< $@
 	chmod -x $@
 
-$(OUT_TESTS_DIR)/%.dis: $(OUT_TESTS_DIR)/%
+$(TEST_PREFIX).dis: $(TEST_PREFIX)
 	$(RV_OBJDUMP) -D -M numeric,no-aliases $< > $@.tmp
 	mv $@.tmp $@
 
