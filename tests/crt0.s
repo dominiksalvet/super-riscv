@@ -15,17 +15,3 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-
-# WARNING: this makefile is not intended to be used by end user
-
-build: $(TEST_BUILD_DIR)/$(TEST_NAME)
-
-$(TEST_BUILD_DIR):
-	mkdir -p $@
-
-$(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
-	$(RV_AS) -march=rv32i -mabi=ilp32 $< -o $@
-
-# TODO: consider a dedicated variable for linker script path
-$(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
-	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
