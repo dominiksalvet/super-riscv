@@ -110,6 +110,7 @@ initial begin : sim_init
     if (!$value$plusargs("test+path=%s", mem_image_path))
         $fatal(1, "No test path specified");
 
+    // TODO: fix .bss section propagation to memory image
     $readmemh(mem_image_path, mem.r_mem);
 
     cycles = 0;
