@@ -17,3 +17,11 @@
 #
 
 # WARNING: this makefile is not intended to be used by end user
+
+build: $(TEST_BUILD_DIR)/$(TEST_NAME)
+
+$(TEST_BUILD_DIR):
+	mkdir -p $@
+
+$(TEST_BUILD_DIR)/%: %.c | $(TEST_BUILD_DIR)
+	$(RV_GCC) -march=rv32i -mabi=ilp32 -nostdlib -T $(TESTS_DIR)/link.ld $(TESTS_DIR)/crt0.S $< -o $@

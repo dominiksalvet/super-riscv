@@ -26,6 +26,5 @@ $(TEST_BUILD_DIR):
 $(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
 	$(RV_AS) -march=rv32i -mabi=ilp32 $< -o $@
 
-# TODO: consider a dedicated variable for linker script path
 $(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
 	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@

@@ -123,6 +123,8 @@ $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex
 
+# this must be executed even when target exists
+.PHONY: $(TEST_PREFIX)
 $(TEST_PREFIX):
 	$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) $(TEST_BUILD_ARGS)
 
