@@ -93,4 +93,28 @@ assign stall_ifu = !dec_ready || !exu_ready;
 assign stall_dec = !exu_ready;
 assign flush_dec = ifu_take_jmp;
 
+// very simple sanity checker for decoding illegal isntructions
+always_ff @(posedge clk) begin : guess_illegal_inst
+    if (!rst) begin
+        i0_illegal : assert (!(
+            dec0.r_inst_p.i0_valid &&
+            // limitation: check only all ones or all zeros
+            dec0.r_inst_p.i0_inst inside {32'b0, ~32'b0} && !(
+                // limitation: expect that all branches are taken
+                (exu0.r_i0_valid && exu0.r_i0_bru_en) ||
+                (exu0.r_i1_valid && exu0.r_i1_bru_en)
+            )
+        ));
+
+        i1_illegal : assert (!(
+            dec0.r_inst_p.i1_valid &&
+            dec0.r_inst_p.i1_inst inside {32'b0, ~32'b0} && !(
+                (dec_i0_valid && dec_i0_en_p.bru) ||
+                (exu0.r_i0_valid && exu0.r_i0_bru_en) ||
+                (exu0.r_i1_valid && exu0.r_i1_bru_en)
+            )
+        ));
+    end
+end
+
 endmodule
