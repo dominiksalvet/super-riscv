@@ -91,7 +91,7 @@ parameter DEFAULT_MAX_CYCLES = 250_000;
 parameter RESET_CYCLES = 4; // must be >0
 
 parameter DEFAULT_RST_VEC = 32'h1000;
-parameter MAILBOX_BASE = 32'h3000;
+parameter MAILBOX_BASE = 32'h4000;
 
 // individual mailbox actions (simple semihosting)
 parameter MB_HALT_ADDR = MAILBOX_BASE;     // print a single character

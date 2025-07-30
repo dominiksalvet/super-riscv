@@ -19,6 +19,8 @@
 OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
+/* TODO: add sbss/sdata support */
+
 SECTIONS
 {
     . = 0x1000;
@@ -39,6 +41,13 @@ SECTIONS
     }
 
     . = 0x3000;
+    .stack : ALIGN(16)
+    {
+        . = . + 0x1000;
+        __stack_top = .;
+    }
+
+    . = 0x4000;
     .mailbox :
     {
         __mb_halt = .;

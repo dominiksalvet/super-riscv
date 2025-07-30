@@ -16,12 +16,10 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# TODO: define TODO_* labels
-
 .section .init
 .global _start
 _start:
-    la sp, TODO_STACK
+    la sp, __stack_top
 
     // zero bss section
     la t0, __bss_start // moving pointer
