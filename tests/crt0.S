@@ -15,3 +15,29 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
+
+# TODO: define TODO_* labels
+
+.section .init
+.global _start
+_start:
+    la sp, TODO_STACK
+
+    // zero bss section
+    la t0, __bss_start // moving pointer
+    la t1, __bss_end
+
+_bss_init_loop:
+    bge t0, t1, _bss_init_done
+    sb zero, 0(t0)
+    addi t0, t0, 1
+    j _bss_init_loop
+_bss_init_done:
+
+    call main
+
+_finish:
+    la t0, TODO_MB_HALT
+_halt_loop:
+    sw a0, 0(t0) // report main return value
+    j _halt_loop

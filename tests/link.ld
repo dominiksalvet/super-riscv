@@ -22,11 +22,18 @@ ENTRY(_start);
 SECTIONS
 {
     . = 0x1000;
-    .text : { *(.text) }
+    .text : {
+        KEEP(*(.init))
+        *(.text)
+    }
     . = 0x2000;
     .rodata : { *(.rodata) }
     .data : { *(.data) }
-    .bss : { *(.bss) }
+    .bss : {
+        __bss_start = .;
+        *(.bss)
+        __bss_end = .;
+    }
     . = 0x3000;
     .mailbox : { *(.mailbox) }
 }

@@ -91,8 +91,11 @@ parameter DEFAULT_MAX_CYCLES = 250_000;
 parameter RESET_CYCLES = 4; // must be >0
 
 parameter DEFAULT_RST_VEC = 32'h1000;
-parameter MB_HALT_ADDR = 32'h3000; // MB - mailbox
-parameter MB_PUTC_ADDR = 32'h3004;
+parameter MAILBOX_BASE = 32'h3000;
+
+// individual mailbox actions (simple semihosting)
+parameter MB_HALT_ADDR = MAILBOX_BASE;     // print a single character
+parameter MB_PUTC_ADDR = MAILBOX_BASE + 4; // end processor simulation
 
 // simulation control variables
 longint cycles;
@@ -110,7 +113,6 @@ initial begin : sim_init
     if (!$value$plusargs("test+path=%s", mem_image_path))
         $fatal(1, "No test path specified");
 
-    // TODO: fix .bss section propagation to memory image
     $readmemh(mem_image_path, mem.r_mem);
 
     cycles = 0;
