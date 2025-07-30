@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2025 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,18 +22,28 @@ ENTRY(_start);
 SECTIONS
 {
     . = 0x1000;
-    .text : {
+    .text :
+    {
         KEEP(*(.init))
         *(.text)
     }
+
     . = 0x2000;
     .rodata : { *(.rodata) }
     .data : { *(.data) }
-    .bss : {
+    .bss :
+    {
         __bss_start = .;
         *(.bss)
         __bss_end = .;
     }
+
     . = 0x3000;
-    .mailbox : { *(.mailbox) }
+    .mailbox :
+    {
+        __mb_halt = .;
+        . += 4;
+        __mb_putc = .;
+        . += 4;
+    }
 }

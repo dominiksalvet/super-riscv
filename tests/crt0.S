@@ -37,7 +37,7 @@ _bss_init_done:
     call main
 
 _finish:
-    la t0, TODO_MB_HALT
+    la t0, __mb_halt
 _halt_loop:
     sw a0, 0(t0) // report main return value
     j _halt_loop

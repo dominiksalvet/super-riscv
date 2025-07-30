@@ -18,10 +18,6 @@
 
 # self-check bubble sort test for RISC-V
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -76,7 +72,7 @@ sorted_loop:
 not_sorted:
     li x10, 1
 sorted:
-    la x11, mb_halt
+    la x11, __mb_halt
 halt_loop:
     sw x10, 0(x11)
     j halt_loop

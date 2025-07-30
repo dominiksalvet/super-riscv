@@ -18,10 +18,6 @@
 
 # compute Fibonacci sequence optimized for Super RISC-V processor
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -46,7 +42,7 @@ fib_seq:
     j fib_seq
 
 finish_test:
-    la x10, mb_halt
+    la x10, __mb_halt
 halt_loop:
     sw x12, 0(x10)
     j halt_loop

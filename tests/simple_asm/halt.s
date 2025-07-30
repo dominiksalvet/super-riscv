@@ -18,15 +18,11 @@
 
 # this is a test of halting Super RISC-V processor
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
     li x1, 0 # return value
-    la x2, mb_halt # mailbox halt address
+    la x2, __mb_halt # mailbox halt address
 halt_loop:
     sw x1, 0(x2) # this should stop simulation
     j halt_loop # loop in case halt isn't working
