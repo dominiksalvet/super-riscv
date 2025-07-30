@@ -124,8 +124,8 @@ hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex
 
 # this must be executed even when target exists
-.PHONY: $(TEST_PREFIX)
-$(TEST_PREFIX):
+FORCE:
+$(TEST_PREFIX): FORCE
 	$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) $(TEST_BUILD_ARGS)
 
 $(TEST_PREFIX).hex: $(TEST_PREFIX)
