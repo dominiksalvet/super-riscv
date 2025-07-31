@@ -19,35 +19,37 @@
 OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
-/* TODO: add sbss/sdata support */
+/* TODO: add support for GP pointer, heap support */
 
 SECTIONS
 {
     . = 0x1000;
-    .text :
-    {
-        *(.init)
-        *(.text)
-    }
+    .init : { *(.init) }
+    .text : { *(.text) }
 
-    . = 0x2000;
     .rodata : { *(.rodata) }
     .data : { *(.data) }
-    .bss :
+
+    .sdata : { *(.sdata) }
+    .sbss :
     {
         __bss_start = .;
+        *(.sbss)
+    }
+
+    .bss :
+    {
         *(.bss)
         __bss_end = .;
     }
 
-    . = 0x3000;
     .stack : ALIGN(16)
     {
-        . = . + 0x1000;
+        . = . + 0x1000; /* stack size */
         __stack_top = .;
     }
 
-    . = 0x4000;
+    . = 0xffffff00;
     .mailbox :
     {
         __mb_halt = .;
