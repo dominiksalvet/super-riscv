@@ -46,6 +46,7 @@ RV_LD = riscv64-unknown-elf-ld
 RV_GCC = riscv64-unknown-elf-gcc
 RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
+RV_READELF = riscv64-unknown-elf-readelf
 
 SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
             $(RTL_DIR)/include/riscv_defs.sv\
@@ -133,7 +134,11 @@ $(TEST_PREFIX).hex: $(TEST_PREFIX)
 	chmod -x $@
 
 $(TEST_PREFIX).dis: $(TEST_PREFIX)
-	$(RV_OBJDUMP) -D -M numeric,no-aliases $< > $@.tmp
+	$(RV_OBJDUMP) -d -M numeric,no-aliases $< > $@.tmp
+	mv $@.tmp $@
+
+$(TEST_PREFIX)_info.txt: $(TEST_PREFIX)
+	$(RV_READELF) -a $< > $@.tmp
 	mv $@.tmp $@
 
 sim: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
@@ -141,7 +146,7 @@ sim: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
 
 # TODO: add support for CPU execution tracing
 # when generating debug info, simulation is allowed to fail
-debug: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex $(TEST_PREFIX).dis
+debug: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
 	rm -f $(WAVES_FILE)
 	./$< $(EXEC_FLAGS) +waves +waves+file=$(WAVES_FILE) || true
 	test -f $(WAVES_FILE)
