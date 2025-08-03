@@ -19,7 +19,7 @@
 OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
-/* TODO: add support for GP pointer, heap support */
+/* TODO: add support for GP pointer, stack/heap/start_address size parameter */
 
 SECTIONS
 {
@@ -43,8 +43,16 @@ SECTIONS
         __bss_end = .;
     }
 
+    .heap : ALIGN(8)
+    {
+        __heap_start = .;
+        . = . + 0x1000; /* heap size */
+        __heap_end = .;
+    }
+
     .stack : ALIGN(16)
     {
+        __stack_bottom = .;
         . = . + 0x1000; /* stack size */
         __stack_top = .;
     }
