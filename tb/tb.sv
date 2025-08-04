@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2025 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -90,8 +90,8 @@ end
 parameter DEFAULT_MAX_CYCLES = 250_000;
 parameter RESET_CYCLES = 4; // must be >0
 
-parameter DEFAULT_RST_VEC = 32'h1000;
-parameter MAILBOX_BASE = 32'hffff_ff00;
+parameter DEFAULT_RST_VEC = 32'h1000_0000;
+parameter MAILBOX_BASE = 32'hf000_0000;
 
 // individual mailbox actions (simple semihosting)
 parameter MB_HALT_ADDR = MAILBOX_BASE;     // print a single character

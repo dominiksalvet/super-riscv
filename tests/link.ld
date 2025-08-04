@@ -20,50 +20,54 @@ OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
 /* TODO: add support for GP pointer, stack/heap/start_address size parameter */
-/* TODO: fix warning 'has a LOAD segment with RWX permissions' */
+
+MEMORY
+{
+    IMEM (rx)    : ORIGIN = 0x10000000, LENGTH = 64K
+    DMEM (rw)    : ORIGIN = 0x20000000, LENGTH = 64K
+    MAILBOX (rw) : ORIGIN = 0xf0000000, LENGTH = 256
+}
 
 SECTIONS
 {
-    . = 0x1000;
-    .init : { *(.init) }
-    .text : { *(.text) }
+    .init : { *(.init) } > IMEM
+    .text : { *(.text) } > IMEM
 
-    .rodata : { *(.rodata) }
-    .data : { *(.data) }
+    .rodata : { *(.rodata) } > DMEM
+    .data : { *(.data) } > DMEM
 
-    .sdata : { *(.sdata) }
+    .sdata : { *(.sdata) } > DMEM
     .sbss :
     {
         __bss_start = .;
         *(.sbss)
-    }
+    } > DMEM
 
     .bss :
     {
         *(.bss)
         __bss_end = .;
-    }
+    } > DMEM
 
     .heap : ALIGN(8)
     {
         __heap_start = .;
         . = . + 0x1000; /* heap size */
         __heap_end = .;
-    }
+    } > DMEM
 
     .stack : ALIGN(16)
     {
         __stack_bottom = .;
         . = . + 0x1000; /* stack size */
         __stack_top = .;
-    }
+    } > DMEM
 
-    . = 0xffffff00;
     .mailbox :
     {
         __mb_halt = .;
         . += 4;
         __mb_putc = .;
         . += 4;
-    }
+    } > MAILBOX
 }

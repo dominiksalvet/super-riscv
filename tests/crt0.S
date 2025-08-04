@@ -22,6 +22,7 @@
 _start:
     la sp, __stack_top
 
+    # TODO: align BSS start and end and use 'sw' instead of 'sb'
     # zero bss section
     la t0, __bss_start # moving pointer
     la t1, __bss_end
