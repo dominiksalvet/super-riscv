@@ -16,13 +16,14 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+# TODO: add support for C++ programs
 .section .init
 .global _start
 _start:
     la sp, __stack_top
 
-    // zero bss section
-    la t0, __bss_start // moving pointer
+    # zero bss section
+    la t0, __bss_start # moving pointer
     la t1, __bss_end
 
 _bss_init_loop:
@@ -32,10 +33,12 @@ _bss_init_loop:
     j _bss_init_loop
 _bss_init_done:
 
+    li a0, 0 # argc = 0
+    li a1, 0 # argv = 0 (null pointer)
     call main
 
 _finish:
     la t0, __mb_halt
 _halt_loop:
-    sw a0, 0(t0) // report main return value
+    sw a0, 0(t0) # report main return value
     j _halt_loop

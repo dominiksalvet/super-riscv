@@ -20,6 +20,7 @@ OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
 /* TODO: add support for GP pointer, stack/heap/start_address size parameter */
+/* TODO: fix warning 'has a LOAD segment with RWX permissions' */
 
 SECTIONS
 {
