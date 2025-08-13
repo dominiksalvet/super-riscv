@@ -19,7 +19,7 @@
 OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
-/* TODO: add support for GP pointer, stack/heap/start_address size parameter */
+/* TODO: add support for GP pointer */
 
 MEMORY
 {
@@ -30,6 +30,9 @@ MEMORY
 
 SECTIONS
 {
+    __stack_size = DEFINED(__stack_size) ? __stack_size : 4K;
+    __heap_size  = DEFINED(__heap_size)  ? __heap_size  : 4K;
+
     .init : { *(.init) } > IMEM
     .text : { *(.text) } > IMEM
 
@@ -52,14 +55,14 @@ SECTIONS
     .heap : ALIGN(8)
     {
         __heap_start = .;
-        . = . + 0x1000; /* heap size */
+        . = . + __heap_size;
         __heap_end = .;
     } > DMEM
 
     .stack : ALIGN(16)
     {
         __stack_bottom = .;
-        . = . + 0x1000; /* stack size */
+        . = . + __stack_size;
         __stack_top = .;
     } > DMEM
 
