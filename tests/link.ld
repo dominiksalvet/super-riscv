@@ -23,8 +23,8 @@ ENTRY(_start);
 
 MEMORY
 {
-    IMEM (rx)    : ORIGIN = 0x10000000, LENGTH = 64K
-    DMEM (rw)    : ORIGIN = 0x20000000, LENGTH = 64K
+    IMEM (rx)    : ORIGIN = 0x20000000, LENGTH = 64K
+    DMEM (rw)    : ORIGIN = 0x30000000, LENGTH = 64K
     MAILBOX (rw) : ORIGIN = 0xf0000000, LENGTH = 256
 }
 
