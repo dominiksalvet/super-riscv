@@ -22,15 +22,14 @@
 _start:
     la sp, __stack_top
 
-    # TODO: align BSS start and end and use 'sw' instead of 'sb'
-    # zero bss section
-    la t0, __bss_start # moving pointer
+    # zero sbss and bss sections
+    la t0, __sbss_start # moving pointer
     la t1, __bss_end
 
 _bss_init_loop:
     bge t0, t1, _bss_init_done
-    sb zero, 0(t0)
-    addi t0, t0, 1
+    sw zero, 0(t0)
+    addi t0, t0, 4
     j _bss_init_loop
 _bss_init_done:
 

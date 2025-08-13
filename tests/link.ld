@@ -40,15 +40,18 @@ SECTIONS
     .data : { *(.data) } > DMEM
 
     .sdata : { *(.sdata) } > DMEM
-    .sbss :
+    .sbss : ALIGN(4)
     {
-        __bss_start = .;
+        __sbss_start = .;
         *(.sbss)
+        . = ALIGN(4);
+        __sbss_end = .;
     } > DMEM
 
-    .bss :
+    .bss : ALIGN(4)
     {
         *(.bss)
+        . = ALIGN(4);
         __bss_end = .;
     } > DMEM
 
