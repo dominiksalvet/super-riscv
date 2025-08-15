@@ -28,3 +28,6 @@ $(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
 
 $(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
 	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
+
+print_test_names:
+	@echo *.s | tr ' ' '\n' | sed 's/\.s$$//'

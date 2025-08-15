@@ -69,6 +69,10 @@ TOP_MODULE = tb
 CPP_WRAPPER = $(abspath $(TB_DIR)/$(TOP_MODULE)_wrapper.cpp)
 TOP_CLASS = V$(TOP_MODULE)
 
+# supported test group names
+TEST_GROUPS = simple_asm\
+              simple_c
+
 # process accepted macros
 TEST_GROUP ?= simple_asm
 TEST_NAME ?= hello_world
@@ -154,6 +158,9 @@ debug: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex $(TEST_PREFIX).dis $(TEST_PR
 
 waves: debug
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
+
+print_test_groups:
+	@echo $(TEST_GROUPS) | tr ' ' '\n'
 
 clean:
 	if [ -d $(OUT_DIR) ]; then rm -r $(OUT_DIR); fi
