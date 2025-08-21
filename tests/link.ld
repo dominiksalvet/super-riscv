@@ -19,8 +19,6 @@
 OUTPUT_ARCH(riscv);
 ENTRY(_start);
 
-/* TODO: add support for GP pointer */
-
 MEMORY
 {
     IMEM (rx)    : ORIGIN = 0x20000000, LENGTH = 64K
@@ -37,23 +35,35 @@ SECTIONS
     .text : { *(.text) } > IMEM
 
     .rodata : { *(.rodata) } > DMEM
-    .data : { *(.data) } > DMEM
-
+    .data :
+    {
+        __data_start = .;
+        *(.data)
+    } > DMEM
+    .srodata :
+    {
+        __srodata_start = .; /* small data sections begin */
+        *(.srodata)
+    } > DMEM
     .sdata : { *(.sdata) } > DMEM
+
     .sbss : ALIGN(4)
     {
-        __sbss_start = .;
+        __sbss_start = .; /* bss sections begin */
         *(.sbss)
         . = ALIGN(4);
-        __sbss_end = .;
     } > DMEM
-
     .bss : ALIGN(4)
     {
         *(.bss)
         . = ALIGN(4);
         __bss_end = .;
     } > DMEM
+
+    /* TODO: check __bss_end vs __sbss_end here */
+    __global_pointer$ = MIN(__srodata_start + 0x800,
+                            MAX(__data_start + 0x800, __bss_end - 0x800)
+                        );
 
     .heap : ALIGN(8)
     {

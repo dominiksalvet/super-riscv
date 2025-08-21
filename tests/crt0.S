@@ -20,17 +20,21 @@
 .section .init
 .global _start
 _start:
+    .option push
+    .option norelax
+    la gp, __global_pointer$
+    .option pop
     la sp, __stack_top
 
     # zero sbss and bss sections
     la t0, __sbss_start # moving pointer
     la t1, __bss_end
 
-_bss_init_loop:
     bge t0, t1, _bss_init_done
+_bss_init_loop:
     sw zero, 0(t0)
     addi t0, t0, 4
-    j _bss_init_loop
+    blt t0, t1, _bss_init_loop
 _bss_init_done:
 
     li a0, 0 # argc = 0
