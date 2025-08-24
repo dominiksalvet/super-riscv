@@ -40,18 +40,20 @@ SECTIONS
         __data_start = .;
         *(.data)
     } > DMEM
-    .srodata :
+
+    .srodata : { *(.srodata) } > DMEM
+    .sdata :
     {
-        __srodata_start = .; /* small data sections begin */
-        *(.srodata)
+        __sdata_start = .;
+        *(.sdata)
     } > DMEM
-    .sdata : { *(.sdata) } > DMEM
 
     .sbss : ALIGN(4)
     {
         __sbss_start = .; /* bss sections begin */
         *(.sbss)
         . = ALIGN(4);
+        __sbss_end = .;
     } > DMEM
     .bss : ALIGN(4)
     {
@@ -60,9 +62,9 @@ SECTIONS
         __bss_end = .;
     } > DMEM
 
-    /* TODO: check __bss_end vs __sbss_end here */
-    __global_pointer$ = MIN(__srodata_start + 0x800,
-                            MAX(__data_start + 0x800, __bss_end - 0x800)
+    /* priority: sdata > sbss > srodata > data > bss */
+    __global_pointer$ = MIN(__sdata_start + 0x800,
+                            MAX(__data_start + 0x800, __sbss_end - 0x800)
                         );
 
     .heap : ALIGN(8)
