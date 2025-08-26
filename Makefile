@@ -162,5 +162,8 @@ waves: debug
 print_test_groups:
 	@echo $(TEST_GROUPS) | tr ' ' '\n'
 
+print_test_names:
+	@$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) --no-print-directory $@
+
 clean:
 	if [ -d $(OUT_DIR) ]; then rm -r $(OUT_DIR); fi

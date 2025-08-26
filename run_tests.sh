@@ -2,7 +2,7 @@
 
 #
 #   Super RISC-V - superscalar dual-issue RISC-V processor
-#   Copyright (C) 2024 Dominik Salvet
+#   Copyright (C) 2024-2025 Dominik Salvet
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -19,13 +19,10 @@
 #
 
 # This is a test runner for Super RISC-V processor. It uses the delivered
-# Makefile to support its reuse. It runs all tests found in the tests/
-# directory. Each test is run with three different configurations of
-# unknown values to prevent possible bugs (zeros, ones, random).
+# Makefile hierarchical build system to support its reuse. It runs all tests
+# from all test groups defined in top Makefile.
 
-TESTS_DIR=tests
 OUT_DIR=out
-
 LOG_FILE="$OUT_DIR/run_tests.log"
 
 # $@ - echo arguments
@@ -42,20 +39,6 @@ make_log()
     make "$@"                # then execute it
 }
 
-# $1 - tests directory
-get_test_names()
-(
-    cd "$1" || return
-    test_names="$(echo *.s | tr ' ' '\n' | sed 's/\.s$//')"
-
-    if [ "$test_names" = '*' ]; then
-        echo 'No tests found' >&2
-        return 1
-    fi
-
-    echo "$test_names"
-)
-
 main()
 (
     mkdir -p "$OUT_DIR" &&
@@ -67,15 +50,17 @@ main()
     echo_log 'Building C++ processor model ...'
     make_log build || return
 
-    echo_log 'Collecting tests ...'
-    test_names="$(get_test_names "$TESTS_DIR")" || return
+    echo_log 'Collecting test groups ...'
+    test_groups="$(make print_test_groups)" || return
 
-    # TODO: consider whether running all tests three times is appropriate
-    for test_name in $test_names; do
-        echo_log "Running test $test_name ..."
-        make_log sim ASSERTS=1 TEST_NAME="$test_name" X_VAL=0 &&
-        make_log sim ASSERTS=1 TEST_NAME="$test_name" X_VAL=1 &&
-        make_log sim ASSERTS=1 TEST_NAME="$test_name" X_VAL=2 SEED=42 || return
+    for test_group in $test_groups; do
+        echo_log "Collecting tests from test group $test_group ..."
+        test_names="$(make print_test_names TEST_GROUP="$test_group")" || return
+
+        for test_name in $test_names; do
+            echo_log "Running test $test_name ..."
+            make_log sim ASSERTS=1 TEST_GROUP="$test_group" TEST_NAME="$test_name" X_VAL=2 SEED=42 || return
+        done
     done
 
     echo_log 'All tests passed'
