@@ -42,7 +42,6 @@ jobs:
     - name: Test unknown values
       run: |
         make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=0
-        false
         make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=1
 
     - name: Compile and run tests
