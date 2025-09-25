@@ -32,7 +32,11 @@ SECTIONS
     __heap_size  = DEFINED(__heap_size)  ? __heap_size  : 4K;
 
     .init : { *(.init) } > IMEM
-    .text : { *(.text) } > IMEM
+    .text :
+    {
+        *(.text.startup)
+        *(.text)
+    } > IMEM
 
     .rodata : { *(.rodata) } > DMEM
     .data :
