@@ -24,6 +24,7 @@ $(TEST_BUILD_DIR):
 	mkdir -p $@
 
 $(TEST_BUILD_DIR)/%: %.c $(TESTS_DIR)/link.ld $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
+# 	$(RV_GCC) -g -march=rv32i -mabi=ilp32 -nostdlib -T $(TESTS_DIR)/link.ld $(TESTS_DIR)/crt0.S $< -o $@
 	$(RV_GCC) -march=rv32i -mabi=ilp32 -nostdlib -T $(TESTS_DIR)/link.ld $(TESTS_DIR)/crt0.S $< -o $@
 
 print_test_names:

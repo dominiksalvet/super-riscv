@@ -139,6 +139,7 @@ $(TEST_PREFIX).hex: $(TEST_PREFIX)
 
 $(TEST_PREFIX).dis: $(TEST_PREFIX)
 # 	$(RV_OBJDUMP) -d -M numeric,no-aliases $< > $@.tmp
+# 	$(RV_OBJDUMP) -d --source -l $< > $@.tmp
 	$(RV_OBJDUMP) -d $< > $@.tmp
 	mv $@.tmp $@
 
