@@ -16,41 +16,45 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#define MAX_FIB_INDEX 47 // 48-th fibonacci number
+#define MAX_FACT_INDEX 12 // factorial of 12
 
-const unsigned int FIBS[] =
+const unsigned int FACTS[] =
 {
-    0, 1, 1, 2, 3, 5, 8, 13, 21, 34,
-    55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181,
-    6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811, 514229,
-    832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 24157817, 39088169, 63245986,
-    102334155, 165580141, 267914296, 433494437, 701408733, 1134903170, 1836311903, 2971215073
+    1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880,
+    3628800, 39916800, 479001600,
 };
 
-int get_fib(int index)
+// TODO: add support for multiplication operator even with RV32I
+int my_mul(int a, int b)
 {
-    int n_1 = 0;
-    int n = 1;
+    int acc = 0;
 
-    for (int i = 0; i < index; i++)
+    for (int i = 0; i < a; i++)
     {
-        int next_n = n + n_1;
-        n_1 = n;
-        n = next_n;
+        acc += b;
     }
 
-    return n_1;
+    return acc;
+}
+
+int get_fact(int num)
+{
+    if (num <= 1)
+        return 1;
+    else
+        // return num * get_fact(num - 1);
+        return my_mul(num, get_fact(num - 1));
 }
 
 int main(int argc, char const *argv[])
 {
     int fail_indicator = 0;
 
-    for (int i = 0; i <= MAX_FIB_INDEX; i++)
+    for (int i = 0; i <= MAX_FACT_INDEX; i++)
     {
-        int cur_fib = get_fib(i);
+        int cur_fact = get_fact(i);
 
-        if (cur_fib != FIBS[i])
+        if (cur_fact != FACTS[i])
         {
             fail_indicator = 1;
         }
