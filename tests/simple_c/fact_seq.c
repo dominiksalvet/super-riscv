@@ -16,34 +16,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#define MAX_FACT_INDEX 12 // factorial of 12
+#define MAX_FACT_INDEX 20 // factorial of 20
 
-const unsigned int FACTS[] =
+const long long FACTS[] =
 {
     1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880,
-    3628800, 39916800, 479001600,
+    3628800, 39916800, 479001600, 6227020800, 87178291200, 1307674368000, 20922789888000, 355687428096000, 6402373705728000, 121645100408832000,
+    2432902008176640000
 };
 
-// TODO: add support for multiplication operator even with RV32I
-int my_mul(int a, int b)
-{
-    int acc = 0;
-
-    for (int i = 0; i < a; i++)
-    {
-        acc += b;
-    }
-
-    return acc;
-}
-
-int get_fact(int num)
+long long get_fact(long long num)
 {
     if (num <= 1)
         return 1;
     else
-        // return num * get_fact(num - 1);
-        return my_mul(num, get_fact(num - 1));
+        return num * get_fact(num - 1);
 }
 
 int main(int argc, char const *argv[])
@@ -52,7 +39,7 @@ int main(int argc, char const *argv[])
 
     for (int i = 0; i <= MAX_FACT_INDEX; i++)
     {
-        int cur_fact = get_fact(i);
+        long long cur_fact = get_fact(i);
 
         if (cur_fact != FACTS[i])
         {
