@@ -16,36 +16,47 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#define MAX_FACT_INDEX 20 // factorial of 20
-
-const long long FACTS[] =
-{
-    1LL, 1LL, 2LL, 6LL, 24LL, 120LL, 720LL, 5040LL, 40320LL, 362880LL,
-    3628800LL, 39916800LL, 479001600LL, 6227020800LL, 87178291200LL, 1307674368000LL, 20922789888000LL, 355687428096000LL, 6402373705728000LL, 121645100408832000LL,
-    2432902008176640000LL
+const int PRIMES[] = {
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+    31, 37, 41, 43, 47, 53, 58, 61, 67, 71
 };
 
-long long get_fact(long long num)
+const int MAX_PRIME = 71;
+
+int is_prime(int n)
 {
-    if (num <= 1)
-        return 1;
-    else
-        return num * get_fact(num - 1);
+    if (n <= 1)
+    {
+        return 0;
+    }
+
+    for (int i = 2; i * i <= n; i++)
+    {
+        if (n % i == 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 int main(int argc, char const *argv[])
 {
-    int fail_indicator = 0;
+    int prime_index = 0;
 
-    for (int i = 0; i <= MAX_FACT_INDEX; i++)
+    for (int i = 0; i < MAX_PRIME; i++)
     {
-        long long cur_fact = get_fact(i);
-
-        if (cur_fact != FACTS[i])
+        if (is_prime(i))
         {
-            fail_indicator = 1;
+            if (i != PRIMES[prime_index])
+            {
+                return 1;
+            }
+
+            prime_index++;
         }
     }
 
-    return fail_indicator;
+    return 0;
 }
