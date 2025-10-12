@@ -16,47 +16,44 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const int PRIMES[] = {
-    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
-    31, 37, 41, 43, 47, 53, 59, 61, 67, 71
-};
+const int FIXED_ONE = 1000000; // 1.000000
+const int FIXED_LN2 =  693147; // 0.693147
 
-const int MAX_PRIME = 71;
+const int MAX_TERMS = 160;
+const int EQUAL_FACTOR = 10000; // ignore 4 lowest digits
 
-int is_prime(int n)
+int fixed_equal(int a, int b)
 {
-    if (n <= 1)
-    {
-        return 0;
-    }
-
-    for (int i = 2; i * i <= n; i++)
-    {
-        if (n % i == 0)
-        {
-            return 0;
-        }
-    }
-
-    return 1;
+    return (a / EQUAL_FACTOR) == (b / EQUAL_FACTOR);
 }
 
 int main(int argc, char const *argv[])
 {
-    int prime_index = 0;
+    int sum = 0;
 
-    for (int i = 0; i < MAX_PRIME; i++)
+    // series: 1 - 1/2 + 1/3 - 1/4 + 1/5 - 1/6 + ... = ln(2)
+    for (int i = 1; i <= MAX_TERMS; i++)
     {
-        if (is_prime(i))
-        {
-            if (i != PRIMES[prime_index])
-            {
-                return 1;
-            }
+        int current_term;
 
-            prime_index++;
+        if (i & 1)
+        {
+            current_term = FIXED_ONE / i;
         }
+        else
+        {
+            current_term = -(FIXED_ONE / i);
+        }
+
+        sum += current_term;
     }
 
-    return 0;
+    if (fixed_equal(sum, FIXED_LN2))
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
