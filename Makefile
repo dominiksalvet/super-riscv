@@ -40,13 +40,17 @@ OUT_TESTS_DIR = $(OUT_DIR)/tests
 VERILATOR = verilator
 GTKWAVE = gtkwave
 
-# RISC-V tools
+# RISC-V GCC tools
 RV_AS = riscv64-unknown-elf-as
 RV_LD = riscv64-unknown-elf-ld
 RV_GCC = riscv64-unknown-elf-gcc
 RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
 RV_READELF = riscv64-unknown-elf-readelf
+
+# Newlib standard C library
+NEWLIB_INCLUDE = /opt/newlib/riscv64-unknown-elf/include
+NEWLIB_LIB = /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
 
 SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
             $(RTL_DIR)/include/riscv_defs.sv\
@@ -101,6 +105,8 @@ TEST_BUILD_ARGS = \
     RV_AS=$(RV_AS) \
     RV_LD=$(RV_LD) \
     RV_GCC=$(RV_GCC) \
+    NEWLIB_INCLUDE=$(NEWLIB_INCLUDE) \
+    NEWLIB_LIB=$(NEWLIB_LIB) \
     TESTS_DIR=$(abspath $(TESTS_DIR)) \
     TEST_BUILD_DIR=$(abspath $(TEST_BUILD_DIR)) \
     TEST_NAME=$(TEST_NAME)
