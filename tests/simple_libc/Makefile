@@ -24,7 +24,7 @@ $(TEST_BUILD_DIR):
 	mkdir -p $@
 
 $(TEST_BUILD_DIR)/crt0.o: $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -DUSE_LIBC -c $< -o $@
+	$(RV_GCC) -march=rv32i -mabi=ilp32 -DUSE_NEWLIB -c $< -o $@
 
 $(TEST_BUILD_DIR)/syscalls.o: $(TESTS_DIR)/syscalls.c | $(TEST_BUILD_DIR)
 	$(RV_GCC) -march=rv32i -mabi=ilp32 -I $(NEWLIB_INCLUDE) -c $< -o $@

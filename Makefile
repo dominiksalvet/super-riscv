@@ -174,3 +174,6 @@ print_test_names:
 
 clean:
 	if [ -d $(OUT_DIR) ]; then rm -r $(OUT_DIR); fi
+
+clean_tests:
+	if [ -d $(OUT_TESTS_DIR) ]; then rm -r $(OUT_TESTS_DIR); fi
