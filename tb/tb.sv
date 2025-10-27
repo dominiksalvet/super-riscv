@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// TODO: check usage of ==/!= whether <=/>= might be better
+
 // testbench, top module for testing
 module tb (
     input logic clk // clock is driven by verilator
@@ -149,6 +151,7 @@ logic mb_putc_event;
 
 assign mem_write = !rst && mem.r_dmem_htrans == 2'b10 && mem.r_dmem_hwrite;
 assign mb_halt_event = mem_write && mem.r_dmem_haddr == MB_HALT_ADDR;
+// TODO: add support for standard error stream, improve naming (putc -> putchar)
 assign mb_putc_event = mem_write && mem.r_dmem_haddr == MB_PUTC_ADDR;
 
 // the core uses mailbox addresses to send signals to testbench

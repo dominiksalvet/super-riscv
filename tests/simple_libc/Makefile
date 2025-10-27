@@ -18,19 +18,22 @@
 
 # WARNING: this makefile is not intended to be used by end user
 
+# TODO: consider moving this up to the top level makefile
+CFLAGS = -march=rv32i -mabi=ilp32
+
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
 
 $(TEST_BUILD_DIR):
 	mkdir -p $@
 
 $(TEST_BUILD_DIR)/crt0.o: $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -DUSE_NEWLIB -c $< -o $@
+	$(RV_GCC) $(CFLAGS) -DUSE_NEWLIB -c $< -o $@
 
 $(TEST_BUILD_DIR)/syscalls.o: $(TESTS_DIR)/syscalls.c | $(TEST_BUILD_DIR)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -I $(NEWLIB_INCLUDE) -c $< -o $@
+	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -c $< -o $@
 
 $(TEST_BUILD_DIR)/%: %.c $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o | $(TEST_BUILD_DIR)
-	$(RV_GCC) -march=rv32i -mabi=ilp32 -I $(NEWLIB_INCLUDE) -L $(NEWLIB_LIB) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o $< -nostdlib -lm -lc -lgcc -o $@
+	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -L $(NEWLIB_LIB) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o $< -nostdlib -lm -lc -lgcc -o $@
 
 print_test_names:
 	@echo *.c | tr ' ' '\n' | sed 's/\.c$$//'
