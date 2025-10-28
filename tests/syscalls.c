@@ -42,6 +42,20 @@ int _isatty(int file) {
     return 1;
 }
 
+int _kill(int pid, int sig) {
+    errno = EINVAL;
+    return -1;
+}
+
+int _getpid(void) {
+    return 1;
+}
+
+void _exit(int status) {
+    asm volatile ("j _finish");
+    __builtin_unreachable();
+}
+
 // TODO: add support for scanf
 int _read(int file, char *ptr, int len) {
     return 0;
@@ -62,7 +76,7 @@ int _write(int file, char *ptr, int len) {
         __mb_putc = (*ptr++);
     }
 
-    return 0;
+    return len;
 }
 
 caddr_t _sbrk(int incr) {

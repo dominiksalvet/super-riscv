@@ -46,6 +46,7 @@ _bss_init_done:
     li a1, 0 # argv = 0 (null pointer)
     call main
 
+.global _finish
 _finish:
     la t0, __mb_halt
 _halt_loop:

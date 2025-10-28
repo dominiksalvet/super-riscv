@@ -20,9 +20,9 @@
 
 int main(int argc, char const *argv[])
 {
-    // TODO: use only a single printf call
-    printf("============================================\n");
-    printf("|        Hello World, can you C it?        |\n");
-    printf("============================================\n");
+    printf("============================================\n"
+           "|        Hello World, can you C it?        |\n"
+           "============================================\n");
+
     return 0;
 }
