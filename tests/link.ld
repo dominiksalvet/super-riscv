@@ -38,7 +38,11 @@ SECTIONS
         *(.text)
     } > IMEM
 
-    .rodata : { *(.rodata) } > DMEM
+    .rodata :
+    {
+        *(.rodata)
+        *(.rodata.*)
+    } > DMEM
     .data :
     {
         __data_start = .;
