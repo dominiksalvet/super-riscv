@@ -18,7 +18,7 @@
 
 # ACCEPTED MACROS:
 #   ASSERTS=1           enable SV assertions
-#   MAX_CYCLES=<value>  max cycles of simulation
+#   MAX_CYCLES=<value>  max cycles of simulation (0 - no limit)
 #   TEST_GROUP=<group>  selected group of tests
 #   TEST_NAME=<name>    test to be run on the CPU
 #   WAVES_FILE=<path>   path of output signal waves file

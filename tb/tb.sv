@@ -16,8 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: check usage of ==/!= whether <=/>= might be better
-
 // testbench, top module for testing
 module tb (
     input logic clk // clock is driven by verilator
@@ -134,7 +132,7 @@ always_ff @(posedge clk) begin : sim_ctl
         rst <= 1'b0;
 
     // max cycles timeout (fail), if not halting the same cycle
-    if (cycles == max_cycles && !mb_halt_event)
+    if (max_cycles != 0 && cycles >= max_cycles && !mb_halt_event)
         $fatal(1, "Maximum cycles limit (%0d) reached", max_cycles);
 
     cycles <= cycles + 1;
