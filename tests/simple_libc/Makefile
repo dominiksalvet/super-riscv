@@ -18,8 +18,8 @@
 
 # WARNING: this makefile is not intended to be used by end user
 
-# TODO: consider moving this up to the top level makefile
-CFLAGS = -march=rv32i -mabi=ilp32
+# EXTRA_CFLAGS = -g
+CFLAGS = $(RV_ISA_FLAGS) $(EXTRA_CFLAGS)
 
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
 

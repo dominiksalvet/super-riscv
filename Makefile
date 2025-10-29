@@ -47,6 +47,10 @@ RV_GCC = riscv64-unknown-elf-gcc
 RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
 RV_READELF = riscv64-unknown-elf-readelf
+RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
+
+# RV_OBJDUMP_FLAGS = -M numeric,no-aliases
+# RV_OBJDUMP_FLAGS = --source -l
 
 # Newlib standard C library
 NEWLIB_INCLUDE = /opt/newlib/riscv64-unknown-elf/include
@@ -105,6 +109,7 @@ TEST_BUILD_ARGS = \
     RV_AS=$(RV_AS) \
     RV_LD=$(RV_LD) \
     RV_GCC=$(RV_GCC) \
+    RV_ISA_FLAGS='$(RV_ISA_FLAGS)' \
     NEWLIB_INCLUDE=$(NEWLIB_INCLUDE) \
     NEWLIB_LIB=$(NEWLIB_LIB) \
     TESTS_DIR=$(abspath $(TESTS_DIR)) \
@@ -144,9 +149,7 @@ $(TEST_PREFIX).hex: $(TEST_PREFIX)
 	chmod -x $@
 
 $(TEST_PREFIX).dis: $(TEST_PREFIX)
-# 	$(RV_OBJDUMP) -d -M numeric,no-aliases $< > $@.tmp
-# 	$(RV_OBJDUMP) -d --source -l $< > $@.tmp
-	$(RV_OBJDUMP) -d $< > $@.tmp
+	$(RV_OBJDUMP) $(RV_OBJDUMP_FLAGS) -d $< > $@.tmp
 	mv $@.tmp $@
 
 $(TEST_PREFIX)_info.txt: $(TEST_PREFIX)

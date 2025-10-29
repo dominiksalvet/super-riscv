@@ -24,7 +24,7 @@ $(TEST_BUILD_DIR):
 	mkdir -p $@
 
 $(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
-	$(RV_AS) -march=rv32i -mabi=ilp32 $< -o $@
+	$(RV_AS) $(RV_ISA_FLAGS) $< -o $@
 
 $(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
 	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
