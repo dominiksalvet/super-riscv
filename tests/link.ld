@@ -21,7 +21,7 @@ ENTRY(_start);
 
 MEMORY
 {
-    IMEM (rx)    : ORIGIN = 0x20000000, LENGTH = 64K
+    IMEM (rx)    : ORIGIN = 0x20000000, LENGTH = 128K
     DMEM (rw)    : ORIGIN = 0x30000000, LENGTH = 64K
     MAILBOX (rw) : ORIGIN = 0xf0000000, LENGTH = 256
 }
@@ -94,6 +94,8 @@ SECTIONS
         __mb_halt = .;
         . += 4;
         __mb_putc = .;
+        . += 4;
+        __mb_getc = .;
         . += 4;
     } > MAILBOX
 }

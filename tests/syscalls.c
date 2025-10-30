@@ -56,13 +56,26 @@ void _exit(int status) {
     __builtin_unreachable();
 }
 
-// TODO: add support for scanf
 int _read(int file, char *ptr, int len) {
-    return 0;
+    extern volatile char __mb_getc;
+
+    // only input from host terminal is implemented
+    if (file != STDIN_FILENO) {
+        errno = ENOSYS;
+        return -1;
+    }
+
+    char *end_ptr = ptr + len;
+
+    while (ptr < end_ptr) {
+        (*ptr++) = __mb_getc;
+    }
+
+    return len;
 }
 
 int _write(int file, char *ptr, int len) {
-    extern char __mb_putc;
+    extern volatile char __mb_putc;
 
     // only output to host terminal is implemented
     if (file != STDOUT_FILENO && file != STDERR_FILENO) {

@@ -140,31 +140,31 @@ gpr gpr0 (
 logic i0_rs1_ready, i0_rs2_ready, i1_rs1_ready, i1_rs2_ready;
 
 fwd_init i0_rs1_fwd_init (
-    .*,
     .rs_addr(i0_rs1_addr),
     .fwd_ready(i0_rs1_ready),
-    .fwd_src(dec_i0_rs1_fwd_src)
+    .fwd_src(dec_i0_rs1_fwd_src),
+    .*
 );
 
 fwd_init i0_rs2_fwd_init (
-    .*,
     .rs_addr(i0_rs2_addr),
     .fwd_ready(i0_rs2_ready),
-    .fwd_src(dec_i0_rs2_fwd_src)
+    .fwd_src(dec_i0_rs2_fwd_src),
+    .*
 );
 
 fwd_init i1_rs1_fwd_init (
-    .*,
     .rs_addr(i1_rs1_addr),
     .fwd_ready(i1_rs1_ready),
-    .fwd_src(dec_i1_rs1_fwd_src)
+    .fwd_src(dec_i1_rs1_fwd_src),
+    .*
 );
 
 fwd_init i1_rs2_fwd_init (
-    .*,
     .rs_addr(i1_rs2_addr),
     .fwd_ready(i1_rs2_ready),
-    .fwd_src(dec_i1_rs2_fwd_src)
+    .fwd_src(dec_i1_rs2_fwd_src),
+    .*
 );
 
 // instruction dispatch
