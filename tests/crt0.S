@@ -37,7 +37,7 @@ _bss_init_loop:
     blt t0, t1, _bss_init_loop
 _bss_init_done:
 
-#ifdef USE_NEWLIB
+#ifdef USE_LIBC
     # run Newlib initialization routines
     call __libc_init_array
 #endif
@@ -45,6 +45,9 @@ _bss_init_done:
     li a0, 0 # argc = 0
     li a1, 0 # argv = 0 (null pointer)
     call main
+#ifdef USE_LIBC
+    tail exit
+#endif
 
 .global _finish
 _finish:

@@ -52,7 +52,7 @@ int _getpid(void) {
 }
 
 void _exit(int status) {
-    asm volatile ("j _finish");
+    asm volatile ("tail _finish");
     __builtin_unreachable();
 }
 

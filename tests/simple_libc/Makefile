@@ -27,7 +27,7 @@ $(TEST_BUILD_DIR):
 	mkdir -p $@
 
 $(TEST_BUILD_DIR)/crt0.o: $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
-	$(RV_GCC) $(CFLAGS) -DUSE_NEWLIB -c $< -o $@
+	$(RV_GCC) $(CFLAGS) -DUSE_LIBC -c $< -o $@
 
 $(TEST_BUILD_DIR)/syscalls.o: $(TESTS_DIR)/syscalls.c | $(TEST_BUILD_DIR)
 	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -c $< -o $@
