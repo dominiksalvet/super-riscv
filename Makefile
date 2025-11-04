@@ -77,6 +77,8 @@ TOP_MODULE = tb
 CPP_WRAPPER = $(abspath $(TB_DIR)/$(TOP_MODULE)_wrapper.cpp)
 TOP_CLASS = V$(TOP_MODULE)
 
+# TODO: start testing using third-party test suites
+# TODO: add support for popular benchmarks
 # supported test group names
 TEST_GROUPS = simple_asm\
               simple_c
