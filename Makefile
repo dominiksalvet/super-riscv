@@ -81,7 +81,8 @@ TOP_CLASS = V$(TOP_MODULE)
 # TODO: add support for popular benchmarks
 # supported test group names
 TEST_GROUPS = simple_asm\
-              simple_c
+              simple_c\
+              simple_libc
 
 # process accepted macros
 TEST_GROUP ?= simple_asm
