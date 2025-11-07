@@ -22,6 +22,8 @@ on: [push, pull_request]
 jobs:
   Testing:
     runs-on: ubuntu-24.04
+    container:
+      image: dominiksalvet/super-riscv-env:latest
 
     steps:
     - name: Checkout commit
