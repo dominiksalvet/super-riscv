@@ -21,19 +21,13 @@ on: [push, pull_request]
 
 jobs:
   Testing:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     container:
       image: dominiksalvet/super-riscv-env:latest
 
     steps:
     - name: Checkout commit
       uses: actions/checkout@v4
-
-    - name: Install dependencies
-      uses: awalsh128/cache-apt-pkgs-action@4c82c3ccdc1344ee11e9775dbdbdf43aa8a5614e
-      with:
-        packages: verilator gcc-riscv64-unknown-elf
-        version: 1.0
 
     - name: Build design
       run: make build
