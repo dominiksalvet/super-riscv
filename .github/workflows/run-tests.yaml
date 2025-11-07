@@ -23,7 +23,7 @@ jobs:
   Testing:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:24.04
+      image: dominiksalvet/super-riscv-env:latest
 
     steps:
     - name: Checkout commit
