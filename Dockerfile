@@ -18,16 +18,16 @@
 
 FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
 
 RUN apt-get update
-RUN apt-get install -y git make verilator gcc g++ libz-dev gcc-riscv64-unknown-elf texinfo
+RUN apt-get install -y git make verilator g++ libz-dev gcc-riscv64-unknown-elf texinfo
 
 RUN git clone https://sourceware.org/git/newlib-cygwin.git /tmp/newlib-cygwin
 WORKDIR /tmp/newlib-cygwin/build
 RUN git checkout newlib-4.5.0
-RUN ../configure --target=riscv64-unknown-elf --prefix=/opt/newlib
-RUN make -j$(nproc)
+RUN ../configure --target=riscv64-unknown-elf --prefix=/opt/newlib --disable-multilib --with-arch=rv32i --with-abi=ilp32
+RUN make CFLAGS_FOR_TARGET="-O2 -march=rv32i -mabi=ilp32" -j $(nproc)
 RUN make install
 
 WORKDIR /

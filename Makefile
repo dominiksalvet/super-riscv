@@ -53,8 +53,8 @@ RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
 # RV_OBJDUMP_FLAGS = --source -l
 
 # Newlib standard C library
-NEWLIB_INCLUDE = /opt/newlib/riscv64-unknown-elf/include
-NEWLIB_LIB = /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
+NEWLIB_INCLUDE ?= /opt/newlib/riscv64-unknown-elf/include
+NEWLIB_LIB ?= /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
 
 SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
             $(RTL_DIR)/include/riscv_defs.sv\
