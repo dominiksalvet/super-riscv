@@ -16,12 +16,12 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS newlib_build
 
-ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get install -y git make verilator g++ libz-dev gcc-riscv64-unknown-elf texinfo
+RUN apt-get install -y git make gcc gcc-riscv64-unknown-elf texinfo
 
 RUN git clone https://sourceware.org/git/newlib-cygwin.git /tmp/newlib-cygwin
 WORKDIR /tmp/newlib-cygwin/build
@@ -30,5 +30,12 @@ RUN ../configure --target=riscv64-unknown-elf --prefix=/opt/newlib --disable-mul
 RUN make CFLAGS_FOR_TARGET="-O2 -march=rv32i -mabi=ilp32" -j $(nproc)
 RUN make install
 
-WORKDIR /
-RUN rm -rf /tmp/newlib-cygwin
+
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
+
+RUN apt-get update
+RUN apt-get install -y git make verilator g++ libz-dev gcc-riscv64-unknown-elf
+COPY --from=newlib_build /opt/newlib /opt/newlib
