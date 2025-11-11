@@ -16,6 +16,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+# stage 1
 FROM ubuntu:24.04 AS newlib_build
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -30,12 +31,13 @@ RUN ../configure --target=riscv64-unknown-elf --prefix=/opt/newlib --disable-mul
 RUN make CFLAGS_FOR_TARGET="-O2 -march=rv32i -mabi=ilp32" -j $(nproc)
 RUN make install
 
-
-
-FROM ubuntu:24.04
+# stage 2
+FROM ubuntu:24.04 AS create_image
 
 ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
 
-RUN apt-get update
-RUN apt-get install -y git make verilator g++ libz-dev gcc-riscv64-unknown-elf
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends make verilator g++ libz-dev gcc-riscv64-unknown-elf && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=newlib_build /opt/newlib /opt/newlib
