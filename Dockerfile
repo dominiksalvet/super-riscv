@@ -32,7 +32,7 @@ RUN make CFLAGS_FOR_TARGET="-O2 -march=rv32i -mabi=ilp32" -j $(nproc)
 RUN make install
 
 # stage 2
-FROM ubuntu:24.04 AS create_image
+FROM ubuntu:24.04 AS super_riscv_env
 
 ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
 
