@@ -18,7 +18,8 @@
 
 # WARNING: this makefile is not intended to be used by end user
 
-# EXTRA_CFLAGS = -g
+# EXTRA_CFLAGS += -g
+# EXTRA_CFLAGS += -Wl,--trace
 CFLAGS = $(RV_ISA_FLAGS) $(EXTRA_CFLAGS)
 
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
@@ -32,8 +33,9 @@ $(TEST_BUILD_DIR)/crt0.o: $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
 $(TEST_BUILD_DIR)/syscalls.o: $(TESTS_DIR)/syscalls.c | $(TEST_BUILD_DIR)
 	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -c $< -o $@
 
+# TODO: consider using libgloss after adding CSR support to processor
 $(TEST_BUILD_DIR)/%: %.c $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o | $(TEST_BUILD_DIR)
-	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -L $(NEWLIB_LIB) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o $< -nostdlib -lm -lc -lgcc -o $@
+	$(RV_GCC) $(CFLAGS) -I $(NEWLIB_INCLUDE) -L $(NEWLIB_LIB) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $(TEST_BUILD_DIR)/syscalls.o $< -nostdlib -lm -lc -lnosys -lgcc -o $@
 
 print_test_names:
 	@echo *.c | tr ' ' '\n' | sed 's/\.c$$//'

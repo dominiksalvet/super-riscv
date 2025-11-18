@@ -40,6 +40,7 @@ _bss_init_done:
 #ifdef USE_LIBC
     # run Newlib initialization routines
     call __libc_init_array
+    # __libc_fini_array is not used as atexit() should be used instead
 #endif
 
     li a0, 0 # argc = 0

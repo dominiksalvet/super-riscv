@@ -19,19 +19,19 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #undef errno
 extern int errno;
-
-// TODO: add all low-level functions that newlib needs
 
 int _fstat(int file, struct stat *st) {
     st->st_mode = S_IFCHR;
     return 0;
 }
 
-int _lseek(int file, int ptr, int dir) {
-    return 0;
+off_t _lseek(int file, off_t ptr, int dir) {
+    errno = ESPIPE;
+    return (off_t)-1;
 }
 
 int _close(int file) {
@@ -57,7 +57,7 @@ void _exit(int status) {
 }
 
 int _read(int file, char *ptr, int len) {
-    extern volatile char __mb_getc;
+    extern volatile int __mb_getc;
 
     // only input from host terminal is implemented
     if (file != STDIN_FILENO) {
@@ -65,13 +65,25 @@ int _read(int file, char *ptr, int len) {
         return -1;
     }
 
-    char *end_ptr = ptr + len;
+    int count = 0;
+    while (count < len) {
+        int read_data = __mb_getc;
 
-    while (ptr < end_ptr) {
-        (*ptr++) = __mb_getc;
+        if (read_data == EOF) {
+            break;
+        }
+
+        char read_byte = read_data & 0xFF;
+        ptr[count] = read_byte;
+        count++;
+
+        // stop filling buffer on interesting chars (to inspect by caller)
+        if (read_byte == '\n' || read_byte == '\r') {
+            break;
+        }
     }
 
-    return len;
+    return count;
 }
 
 int _write(int file, char *ptr, int len) {
