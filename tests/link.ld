@@ -31,41 +31,47 @@ SECTIONS
     __stack_size = DEFINED(__stack_size) ? __stack_size : 4K;
     __heap_size  = DEFINED(__heap_size)  ? __heap_size  : 4K;
 
-    .init : { *(.init) } > IMEM
+    .init :
+    {
+        *(.init)
+    } > IMEM
     .text :
     {
-        *(.text.startup)
-        *(.text)
+        *(.text.startup .text.startup.*)
+        *(.text .text.*)
     } > IMEM
 
     .rodata :
     {
-        *(.rodata)
-        *(.rodata.*)
+        *(.rodata .rodata.*)
     } > DMEM
     .data :
     {
         __data_start = .;
-        *(.data)
+        *(.data .data.*)
     } > DMEM
 
-    .srodata : { *(.srodata) } > DMEM
+    .srodata :
+    {
+        *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2)
+        *(.srodata .srodata.*)
+    } > DMEM
     .sdata :
     {
         __sdata_start = .;
-        *(.sdata)
+        *(.sdata .sdata.*)
     } > DMEM
 
     .sbss : ALIGN(4)
     {
         __sbss_start = .; /* bss sections begin */
-        *(.sbss)
+        *(.sbss .sbss.*)
         . = ALIGN(4);
         __sbss_end = .;
     } > DMEM
     .bss : ALIGN(4)
     {
-        *(.bss)
+        *(.bss .bss.*)
         . = ALIGN(4);
         __bss_end = .;
     } > DMEM

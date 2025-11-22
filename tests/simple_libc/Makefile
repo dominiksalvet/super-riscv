@@ -20,6 +20,9 @@
 
 # EXTRA_CFLAGS += -g
 # EXTRA_CFLAGS += -Wl,--trace
+# EXTRA_CFLAGS += -Os
+# EXTRA_CFLAGS += -O3
+# EXTRA_CFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
 CFLAGS = $(RV_ISA_FLAGS) $(EXTRA_CFLAGS)
 
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
