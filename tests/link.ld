@@ -33,7 +33,7 @@ SECTIONS
 
     .init :
     {
-        *(.init)
+        KEEP(*(.init))
     } > IMEM
     .text :
     {
