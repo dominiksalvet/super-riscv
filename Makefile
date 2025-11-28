@@ -25,6 +25,9 @@
 #   X_VAL=0|1|2         unknown values in SV are replaced with:
 #                       0 - zeros, 1 - ones, 2 - random values
 #   SEED=<value>        seed used for any randomized event
+#   INPUT_IN_FILE=1     use input file of respective test as stdin
+#                       e.g., TEST_NAME=foo -> stdin=foo_input.txt
+#                       if not existing, empty file is used instead
 
 RTL_DIR = rtl
 TB_DIR = tb
@@ -142,7 +145,7 @@ $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex
 
-# this must be executed even when target exists
+# this rule must be executed even when target exists
 FORCE:
 $(TEST_PREFIX): FORCE
 	$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) $(TEST_BUILD_ARGS)
@@ -159,14 +162,31 @@ $(TEST_PREFIX)_info.txt: $(TEST_PREFIX)
 	$(RV_READELF) -a $< > $@.tmp
 	mv $@.tmp $@
 
-sim: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
-	./$< $(EXEC_FLAGS)
+# compose simulation rules
+SIM_PREREQ := $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
+DEBUG_PREREQ := $(SIM_PREREQ) $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
+ifeq ($(INPUT_IN_FILE), 1)
+    SIM_PREREQ += $(OUT_TESTS_DIR)/last_input.txt
+    DEBUG_PREREQ += $(OUT_TESTS_DIR)/last_input.txt
+endif
+
+EXEC_RECIPE =
+ifeq ($(INPUT_IN_FILE), 1)
+    EXEC_RECIPE = cat $(OUT_TESTS_DIR)/last_input.txt |
+endif
+EXEC_RECIPE += ./$(BUILD_DIR)/$(TOP_CLASS) $(EXEC_FLAGS)
+
+$(OUT_TESTS_DIR)/last_input.txt: FORCE
+	cp $(TESTS_DIR)/$(TEST_GROUP)/$(TEST_NAME)_input.txt $@ 2>/dev/null || true > $@
+
+sim: $(SIM_PREREQ)
+	$(EXEC_RECIPE)
 
 # TODO: add support for CPU execution tracing
 # when generating debug info, simulation is allowed to fail
-debug: $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
+debug: $(DEBUG_PREREQ)
 	rm -f $(WAVES_FILE)
-	./$< $(EXEC_FLAGS) +waves +waves+file=$(WAVES_FILE) || true
+	$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) || true
 	test -f $(WAVES_FILE)
 
 waves: debug

@@ -59,7 +59,7 @@ main()
 
         for test_name in $test_names; do
             echo_log "Running test $test_name ..."
-            make_log sim ASSERTS=1 TEST_GROUP="$test_group" TEST_NAME="$test_name" X_VAL=2 SEED=42 || return
+            make_log sim TEST_GROUP="$test_group" TEST_NAME="$test_name" ASSERTS=1 X_VAL=2 SEED=42 INPUT_IN_FILE=1 || return
         done
     done
 
