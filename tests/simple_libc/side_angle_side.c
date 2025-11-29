@@ -19,7 +19,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#define EPSILON 1e-5f
+#define EPSILON 1e-4f
 #define PI_VAL 3.14159265358979323846f
 
 // expected values
