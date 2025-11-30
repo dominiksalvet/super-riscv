@@ -165,18 +165,14 @@ $(TEST_PREFIX)_info.txt: $(TEST_PREFIX)
 # compose simulation rules
 SIM_PREREQ := $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
 DEBUG_PREREQ := $(SIM_PREREQ) $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
+EXEC_RECIPE := ./$(BUILD_DIR)/$(TOP_CLASS) $(EXEC_FLAGS)
 ifeq ($(INPUT_IN_FILE), 1)
-    SIM_PREREQ += $(OUT_TESTS_DIR)/last_input.txt
-    DEBUG_PREREQ += $(OUT_TESTS_DIR)/last_input.txt
+    SIM_PREREQ += $(OUT_TESTS_DIR)/input_copy.txt
+    DEBUG_PREREQ += $(OUT_TESTS_DIR)/input_copy.txt
+    EXEC_RECIPE += < $(OUT_TESTS_DIR)/input_copy.txt
 endif
 
-EXEC_RECIPE =
-ifeq ($(INPUT_IN_FILE), 1)
-    EXEC_RECIPE = cat $(OUT_TESTS_DIR)/last_input.txt |
-endif
-EXEC_RECIPE += ./$(BUILD_DIR)/$(TOP_CLASS) $(EXEC_FLAGS)
-
-$(OUT_TESTS_DIR)/last_input.txt: FORCE
+$(OUT_TESTS_DIR)/input_copy.txt: FORCE
 	cp $(TESTS_DIR)/$(TEST_GROUP)/$(TEST_NAME)_input.txt $@ 2>/dev/null || true > $@
 
 sim: $(SIM_PREREQ)

@@ -1,0 +1,1 @@
+Linker linked this linked list to make links link.
