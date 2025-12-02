@@ -16,14 +16,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
+void custom_print(char *str)
+{
+    extern volatile char __mb_putc;
+
+    while (*str != '\0') {
+        __mb_putc = *str++;
+    }
+}
 
 int main(int argc, char const *argv[])
 {
-    printf(
+    custom_print(
         " ----------------------------------------------- \n"
         "|                                               |\n"
-        "|          Hello World from printf()!           |\n"
+        "|          Hello World, can you C it?           |\n"
         "|                                               |\n"
         " ----------------------------------------------- \n"
     );
