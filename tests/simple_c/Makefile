@@ -20,6 +20,7 @@
 
 # EXTRA_CFLAGS = -g
 CFLAGS = $(RV_ISA_FLAGS) $(EXTRA_CFLAGS)
+LDFLAGS = -Wl,--defsym=__heap_size=0
 
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
 
@@ -30,7 +31,7 @@ $(TEST_BUILD_DIR)/crt0.o: $(TESTS_DIR)/crt0.S | $(TEST_BUILD_DIR)
 	$(RV_GCC) $(CFLAGS) -c $< -o $@
 
 $(TEST_BUILD_DIR)/%: %.c $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o | $(TEST_BUILD_DIR)
-	$(RV_GCC) $(CFLAGS) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $< -nostdlib -lgcc -o $@
+	$(RV_GCC) $(CFLAGS) $(LDFLAGS) -T $(TESTS_DIR)/link.ld $(TEST_BUILD_DIR)/crt0.o $< -nostdlib -lgcc -o $@
 
 print_test_names:
 	@echo *.c | tr ' ' '\n' | sed 's/\.c$$//'

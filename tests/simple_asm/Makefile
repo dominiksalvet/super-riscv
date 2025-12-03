@@ -18,6 +18,8 @@
 
 # WARNING: this makefile is not intended to be used by end user
 
+LDFLAGS = --defsym=__stack_size=0 --defsym=__heap_size=0 --no-relax-gp
+
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)
 
 $(TEST_BUILD_DIR):
@@ -27,7 +29,7 @@ $(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
 	$(RV_AS) $(RV_ISA_FLAGS) $< -o $@
 
 $(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
-	$(RV_LD) -nostdlib -m elf32lriscv -T $(TESTS_DIR)/link.ld $< -o $@
+	$(RV_LD) -m elf32lriscv $(LDFLAGS) -T $(TESTS_DIR)/link.ld $< -nostdlib -o $@
 
 print_test_names:
 	@echo *.s | tr ' ' '\n' | sed 's/\.s$$//'

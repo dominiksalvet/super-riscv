@@ -50,6 +50,7 @@ RV_GCC = riscv64-unknown-elf-gcc
 RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
 RV_READELF = riscv64-unknown-elf-readelf
+RV_SIZE = riscv64-unknown-elf-size
 RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
 
 # RV_OBJDUMP_FLAGS = -M numeric,no-aliases
@@ -164,7 +165,7 @@ $(TEST_PREFIX)_info.txt: $(TEST_PREFIX)
 
 # compose simulation rules
 SIM_PREREQ := $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
-DEBUG_PREREQ := $(SIM_PREREQ) $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
+DEBUG_PREREQ := $(SIM_PREREQ) $(TEST_PREFIX) $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
 EXEC_RECIPE := ./$(BUILD_DIR)/$(TOP_CLASS) $(EXEC_FLAGS)
 ifeq ($(INPUT_IN_FILE), 1)
     SIM_PREREQ += $(OUT_TESTS_DIR)/input_copy.txt
@@ -182,6 +183,7 @@ sim: $(SIM_PREREQ)
 # when generating debug info, simulation is allowed to fail
 debug: $(DEBUG_PREREQ)
 	rm -f $(WAVES_FILE)
+	$(RV_SIZE) -G $(TEST_PREFIX)
 	$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) || true
 	test -f $(WAVES_FILE)
 
