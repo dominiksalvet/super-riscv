@@ -37,7 +37,7 @@ FROM ubuntu:24.04 AS super_riscv_env
 ENV DEBIAN_FRONTEND=noninteractive NEWLIB_LIB=/opt/newlib/riscv64-unknown-elf/lib
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends make verilator g++ libz-dev gcc-riscv64-unknown-elf && \
+    apt-get install -y --no-install-recommends git ca-certificates make verilator g++ libz-dev gcc-riscv64-unknown-elf && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=newlib_build /opt/newlib /opt/newlib
