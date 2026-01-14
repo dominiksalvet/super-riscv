@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -123,5 +123,22 @@ typedef struct packed {
     logic [31:0] addr;
     logic [31:0] wdata;
 } lsu_pkt_t;
+
+`ifdef EXEC_TRACE_SUPPORT
+    // used for tracking architectural events
+    typedef struct packed {
+        logic [31:0] addr;
+        logic [31:0] inst;
+        logic        gpr_we;
+        logic [4:0]  gpr_addr;
+        logic [31:0] gpr_wdata;
+        // TODO: consider adding memory load
+        logic        mem_we;
+        logic [31:0] mem_addr;
+        logic [31:0] mem_wdata;
+        logic        pc_we;
+        logic [31:0] pc_wdata;
+    } trace_pkt_t;
+`endif
 
 endpackage

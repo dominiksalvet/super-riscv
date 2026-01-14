@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -48,6 +48,12 @@ module dec // decoding unit
     output fwd_src_t dec_i0_rs2_fwd_src,
     output fwd_src_t dec_i1_rs1_fwd_src,
     output fwd_src_t dec_i1_rs2_fwd_src
+
+`ifdef EXEC_TRACE_SUPPORT
+    ,
+    output trace_pkt_t dec_i0_trace_p,
+    output trace_pkt_t dec_i1_trace_p
+`endif
 );
 
 inst_pkt_t r_inst_p;
@@ -194,5 +200,10 @@ assign dec_i1_valid = r_inst_p.i1_valid && i1_ready && i0_ready; // i1 must not 
 assign dec_i1_en_p = i1_en_p;
 assign dec_i1_exec_p = '{i1_rs1_val, i1_rs2_val, i1_imm, i1_alu_s1_sel, i1_alu_s2_sel, i1_alu_opc, i1_agu_s1_sel, i1_extra_opc, i1_rd_addr};
 assign dec_pc_val = r_inst_p.addr;
+
+`ifdef EXEC_TRACE_SUPPORT
+    assign dec_i0_trace_p = '{default: '0, addr: r_inst_p.addr,         inst: r_inst_p.i0_inst};
+    assign dec_i1_trace_p = '{default: '0, addr: r_inst_p.addr + 32'd4, inst: r_inst_p.i1_inst};
+`endif
 
 endmodule

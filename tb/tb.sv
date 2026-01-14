@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024-2025 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -145,6 +145,27 @@ always_ff @(posedge clk) begin : sim_ctl
     // max cycles timeout (fail), if not halting the same cycle
     if (max_cycles != 0 && cycles >= max_cycles && !mb_halt_event)
         $fatal(1, "Maximum cycles limit (%0d) reached", max_cycles);
+
+`ifdef EXEC_TRACE_SUPPORT
+    // CPU execution trace
+    if (core.exu0.r_wb_i0_valid) begin
+        $display(
+            "slot: i0, clock: %0d, addr: %h, inst: %h",
+            cycles,
+            core.exu0.wb_i0_final_trace_p.addr,
+            core.exu0.wb_i0_final_trace_p.inst
+        );
+    end
+
+    if (core.exu0.r_wb_i1_valid) begin
+        $display(
+            "slot: i1, clock: %0d, addr: %h, inst: %h",
+            cycles,
+            core.exu0.wb_i1_final_trace_p.addr,
+            core.exu0.wb_i1_final_trace_p.inst
+        );
+    end
+`endif
 
     cycles <= cycles + 1;
     past_rst <= rst;

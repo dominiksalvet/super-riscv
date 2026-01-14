@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 module exu // execution unit
     import srv_defs::*;
+    import riscv_defs::*;
 (
     input logic  clk,
     input logic  rst,
@@ -53,6 +54,12 @@ module exu // execution unit
     input logic         lsu_resp_wait,
     input logic         lsu_resp_valid,
     input logic [31:0]  lsu_rdata
+
+`ifdef EXEC_TRACE_SUPPORT
+    ,
+    input trace_pkt_t dec_i0_trace_p,
+    input trace_pkt_t dec_i1_trace_p
+`endif
 );
 
 // EXU entry registers (EX1 stage)
@@ -64,6 +71,11 @@ exec_pkt_t   r_i0_exec_p,      r_i1_exec_p;
 fwd_src_t    r_i0_rs1_fwd_src, r_i1_rs1_fwd_src;
 fwd_src_t    r_i0_rs2_fwd_src, r_i1_rs2_fwd_src;
 logic [31:0] r_pc_val;
+
+`ifdef EXEC_TRACE_SUPPORT
+    trace_pkt_t r_i0_trace_p;
+    trace_pkt_t r_i1_trace_p;
+`endif
 
 // TODO: remove all data registers from rst paths
 always_ff @(posedge clk) begin : catch_decoded
@@ -152,6 +164,11 @@ always_ff @(posedge clk) begin : catch_decoded
 
         r_i0_valid <= dec_i0_valid;
         r_i1_valid <= dec_i1_valid;
+
+`ifdef EXEC_TRACE_SUPPORT
+        r_i0_trace_p <= dec_i0_trace_p;
+        r_i1_trace_p <= dec_i1_trace_p;
+`endif
     end
 end
 
@@ -332,6 +349,11 @@ logic        r_ex2_i0_rd_en,   r_ex2_i1_rd_en;
 logic [4:0]  r_ex2_i0_rd_addr, r_ex2_i1_rd_addr;
 logic [31:0] r_ex2_i0_rd_val,  r_ex2_i1_rd_val;
 
+`ifdef EXEC_TRACE_SUPPORT
+    trace_pkt_t r_ex2_i0_trace_p;
+    trace_pkt_t r_ex2_i1_trace_p;
+`endif
+
 always_ff @(posedge clk) begin : ex2_regs
     if (rst) begin
         r_ex2_i0_valid <= 1'b0;
@@ -363,6 +385,22 @@ always_ff @(posedge clk) begin : ex2_regs
 
         r_ex2_i0_valid <= r_i0_valid;
         r_ex2_i1_valid <= next_i1_valid;
+
+`ifdef EXEC_TRACE_SUPPORT
+        r_ex2_i0_trace_p <= r_i0_trace_p;
+        r_ex2_i0_trace_p.pc_we <= bru_take_jmp && bru_jmp_src_i0;
+        r_ex2_i0_trace_p.pc_wdata <= bru_jmp_addr;
+        r_ex2_i0_trace_p.mem_we <= i0_uses_lsu && (lsu_p.opc[3] == OPC_STORE[5]);
+        r_ex2_i0_trace_p.mem_addr <= lsu_p.addr;
+        r_ex2_i0_trace_p.mem_wdata <= lsu_p.wdata;
+
+        r_ex2_i1_trace_p <= r_i1_trace_p;
+        r_ex2_i1_trace_p.pc_we <= bru_take_jmp && !bru_jmp_src_i0;
+        r_ex2_i1_trace_p.pc_wdata <= bru_jmp_addr;
+        r_ex2_i1_trace_p.mem_we <= i1_uses_lsu && (lsu_p.opc[3] == OPC_STORE[5]);
+        r_ex2_i1_trace_p.mem_addr <= lsu_p.addr;
+        r_ex2_i1_trace_p.mem_wdata <= lsu_p.wdata;
+`endif
     end
 end
 
@@ -374,6 +412,11 @@ exec_pipe_t  r_ex3_i0_pipe,    r_ex3_i1_pipe;
 logic        r_ex3_i0_rd_en,   r_ex3_i1_rd_en;
 logic [4:0]  r_ex3_i0_rd_addr, r_ex3_i1_rd_addr;
 logic [31:0] r_ex3_i0_rd_val,  r_ex3_i1_rd_val;
+
+`ifdef EXEC_TRACE_SUPPORT
+    trace_pkt_t r_ex3_i0_trace_p;
+    trace_pkt_t r_ex3_i1_trace_p;
+`endif
 
 always_ff @(posedge clk) begin : ex3_regs
     if (rst) begin
@@ -406,6 +449,11 @@ always_ff @(posedge clk) begin : ex3_regs
 
         r_ex3_i0_valid <= r_ex2_i0_valid;
         r_ex3_i1_valid <= r_ex2_i1_valid;
+
+`ifdef EXEC_TRACE_SUPPORT
+        r_ex3_i0_trace_p <= r_ex2_i0_trace_p;
+        r_ex3_i1_trace_p <= r_ex2_i1_trace_p;
+`endif
     end
 end
 
@@ -417,6 +465,11 @@ logic        r_wb_i0_lsu_en,  r_wb_i1_lsu_en; // LSU used for this instruction
 logic        r_wb_i0_rd_en,   r_wb_i1_rd_en;
 logic [4:0]  r_wb_i0_rd_addr, r_wb_i1_rd_addr;
 logic [31:0] r_wb_i0_rd_val,  r_wb_i1_rd_val;
+
+`ifdef EXEC_TRACE_SUPPORT
+    trace_pkt_t r_wb_i0_trace_p;
+    trace_pkt_t r_wb_i1_trace_p;
+`endif
 
 // TODO: consider different LSU integration to make it universal (e.g., for adding divider) and less stalling
 always_ff @(posedge clk) begin : wb_regs
@@ -454,6 +507,11 @@ always_ff @(posedge clk) begin : wb_regs
 
         r_wb_i0_valid <= r_ex3_i0_valid;
         r_wb_i1_valid <= r_ex3_i1_valid;
+
+`ifdef EXEC_TRACE_SUPPORT
+        r_wb_i0_trace_p <= r_ex3_i0_trace_p;
+        r_wb_i1_trace_p <= r_ex3_i1_trace_p;
+`endif
     end else if (lsu_resp_wait && lsu_resp_valid) begin
         if (r_wb_i0_valid && r_wb_i0_lsu_en && r_wb_i0_rd_en)
             r_wb_i0_rd_val <= lsu_rdata; // receive the data additionally
@@ -467,5 +525,24 @@ assign exu_res_p = '{r_wb_i0_valid && r_wb_i0_rd_en && exu_ready, r_wb_i0_rd_add
                      r_wb_i1_valid && r_wb_i1_rd_en && exu_ready, r_wb_i1_rd_addr, r_wb_i1_rd_val};
 
 assign exu_ready = !lsu_addr_wait && !lsu_resp_wait;
+
+`ifdef EXEC_TRACE_SUPPORT
+// verilator lint_off UNUSEDSIGNAL
+    trace_pkt_t wb_i0_final_trace_p;
+    trace_pkt_t wb_i1_final_trace_p;
+// verilator lint_on UNUSEDSIGNAL
+
+    always_comb begin : prepare_final_trace
+        wb_i0_final_trace_p = r_wb_i0_trace_p;
+        wb_i0_final_trace_p.gpr_we = r_wb_i0_rd_en;
+        wb_i0_final_trace_p.gpr_addr = r_wb_i0_rd_addr;
+        wb_i0_final_trace_p.gpr_wdata = r_wb_i0_rd_val;
+
+        wb_i1_final_trace_p = r_wb_i1_trace_p;
+        wb_i1_final_trace_p.gpr_we = r_wb_i1_rd_en;
+        wb_i1_final_trace_p.gpr_addr = r_wb_i1_rd_addr;
+        wb_i1_final_trace_p.gpr_wdata = r_wb_i1_rd_val;
+    end
+`endif
 
 endmodule

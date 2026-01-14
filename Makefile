@@ -1,6 +1,6 @@
 #
 #   Super RISC-V - superscalar dual-issue RISC-V processor
-#   Copyright (C) 2024-2025 Dominik Salvet
+#   Copyright (C) 2024-2026 Dominik Salvet
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -136,6 +136,7 @@ $(BUILD_DIR)_verilated: $(SRC_FILES) | $(BUILD_DIR)
           --trace-fst --trace-structs\
           --x-assign unique --x-initial unique\
           -Mdir $(BUILD_DIR)\
+          -DEXEC_TRACE_SUPPORT\
           $^ $(CPP_WRAPPER)
 	touch $@
 
