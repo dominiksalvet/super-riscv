@@ -17,7 +17,9 @@
 */
 
 // testbench, top module for testing
-module tb (
+module tb
+    import srv_defs::*;
+(
     input logic clk // clock is driven by verilator
 );
 
@@ -115,7 +117,8 @@ string mem_image_path;
 
 // basic peformance monitoring
 longint inst_ret; // number of retired instructions
-longint next_inst_ret;
+longint i0_next_inst_ret;
+longint i1_next_inst_ret;
 
 initial begin : sim_init
     if (!$value$plusargs("max+cycles=%d", max_cycles))
@@ -134,8 +137,8 @@ initial begin : sim_init
     rst_vec = DEFAULT_RST_VEC;
 end
 
-assign next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid) +
-                                  longint'(core.exu0.r_wb_i1_valid);
+assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
+assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 
 always_ff @(posedge clk) begin : sim_ctl
     // active for RESET_CYCLES rising edges of clock
@@ -148,30 +151,18 @@ always_ff @(posedge clk) begin : sim_ctl
 
 `ifdef EXEC_TRACE_SUPPORT
     // CPU execution trace
-    if (core.exu0.r_wb_i0_valid) begin
-        $display(
-            "slot: i0, clock: %0d, addr: %h, inst: %h",
-            cycles,
-            core.exu0.wb_i0_final_trace_p.addr,
-            core.exu0.wb_i0_final_trace_p.inst
-        );
-    end
+    if (core.exu0.r_wb_i0_valid)
+        $display(get_trace_string(0, i0_next_inst_ret, cycles, core.exu0.wb_i0_final_trace_p));
 
-    if (core.exu0.r_wb_i1_valid) begin
-        $display(
-            "slot: i1, clock: %0d, addr: %h, inst: %h",
-            cycles,
-            core.exu0.wb_i1_final_trace_p.addr,
-            core.exu0.wb_i1_final_trace_p.inst
-        );
-    end
+    if (core.exu0.r_wb_i1_valid)
+        $display(get_trace_string(1, i1_next_inst_ret, cycles, core.exu0.wb_i1_final_trace_p));
 `endif
 
     cycles <= cycles + 1;
     past_rst <= rst;
 
     if (!rst && core.exu0.exu_ready)
-        inst_ret <= next_inst_ret;
+        inst_ret <= i1_next_inst_ret;
 end
 
 // testbench mailbox control
@@ -217,7 +208,7 @@ final begin : print_perf_stats
         $display("Simulated cycles: %0d", cycles - 1);
 
         // also include packet that caused halt (not retired yet)
-        final_inst_ret = next_inst_ret;
+        final_inst_ret = i1_next_inst_ret;
         // if halt was performed from i0, i1 should not be considered executed
         if (core.exu0.r_wb_i0_valid && core.exu0.r_wb_i1_valid && core.exu0.r_wb_i0_lsu_en)
             final_inst_ret--;
@@ -225,5 +216,60 @@ final begin : print_perf_stats
         $display("Executed instructions: %0d", final_inst_ret);
     end
 end
+
+// TODO: add header
+// TODO: add disassembly
+// TODO: print to file
+// TODO: make it possible to disable
+// TODO: sync all timing (and solve off-by-ones) in this TB
+// TODO: indicate how many bytes were written to memory
+// verilator lint_off UNUSEDSIGNAL
+function automatic string get_trace_string(
+    int issue_slot,
+    longint cur_inst_ret,
+    longint cur_cycle,
+    trace_pkt_t trace_p
+);
+    string msg;
+    string extra_msg;
+
+    $swrite(msg,
+        "|   i%0d | %10d | %10d | 0x%h | 0x%h |",
+        issue_slot,
+        cur_inst_ret,
+        cur_cycle,
+        trace_p.addr,
+        trace_p.inst
+    );
+
+    if (trace_p.gpr_we && trace_p.gpr_addr != 5'b0) begin
+        $swrite(extra_msg,
+            "         gpr[%d] = 0x%h |",
+            trace_p.gpr_addr,
+            trace_p.gpr_wdata
+        );
+        msg = {msg, extra_msg};
+    end
+
+    if (trace_p.mem_we) begin
+        $swrite(extra_msg,
+            " mem[0x%h] = 0x%h |",
+            trace_p.mem_addr,
+            trace_p.mem_wdata
+        );
+        msg = {msg, extra_msg};
+    end
+
+    if (trace_p.pc_we) begin
+        $swrite(extra_msg,
+            "              pc = 0x%h |",
+            trace_p.pc_wdata
+        );
+        msg = {msg, extra_msg};
+    end
+
+    return msg;
+endfunction
+// verilator lint_on UNUSEDSIGNAL
 
 endmodule
