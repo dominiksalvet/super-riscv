@@ -23,17 +23,17 @@ module ahb_mem ( // dual port AHB-Lite memory
 
     // instruction interface
     input logic [31:0]  imem_haddr,
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
     input logic [2:0]   imem_hburst,
     input logic         imem_hmastlock,
     input logic [3:0]   imem_hprot,
     input logic [2:0]   imem_hsize,
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
     input logic [1:0]   imem_htrans,
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
     input logic [63:0]  imem_hwdata,
     input logic         imem_hwrite,
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 
     output logic [63:0] imem_hrdata,
     output logic        imem_hready,
@@ -41,11 +41,11 @@ module ahb_mem ( // dual port AHB-Lite memory
 
     // data interface
     input logic [31:0]  dmem_haddr,
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
     input logic [2:0]   dmem_hburst,
     input logic         dmem_hmastlock,
     input logic [3:0]   dmem_hprot,
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
     input logic [2:0]   dmem_hsize,
     input logic [1:0]   dmem_htrans,
     input logic [31:0]  dmem_hwdata,
@@ -59,9 +59,9 @@ module ahb_mem ( // dual port AHB-Lite memory
 // commom memory storage for both ports
 logic [7:0] r_mem [logic [31:0]]; // associative array
 
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
 logic [31:0] r_imem_haddr;
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 logic [1:0]  r_imem_htrans;
 
 always_ff @(posedge clk) begin : imem_accept_req

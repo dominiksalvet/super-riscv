@@ -132,8 +132,8 @@ typedef struct packed {
         logic        gpr_we;
         logic [4:0]  gpr_addr;
         logic [31:0] gpr_wdata;
-        // TODO: consider adding memory load
-        logic        mem_we;
+        logic        mem_en;
+        logic [3:0]  mem_opc;
         logic [31:0] mem_addr;
         logic [31:0] mem_wdata;
         logic        pc_we;

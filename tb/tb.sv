@@ -19,6 +19,7 @@
 // testbench, top module for testing
 module tb
     import srv_defs::*;
+    import riscv_defs::*;
 (
     input logic clk // clock is driven by verilator
 );
@@ -222,8 +223,8 @@ end
 // TODO: print to file
 // TODO: make it possible to disable
 // TODO: sync all timing (and solve off-by-ones) in this TB
-// TODO: indicate how many bytes were written to memory
-// verilator lint_off UNUSEDSIGNAL
+// TODO: consider moving this to a separate file
+`ifdef EXEC_TRACE_SUPPORT
 function automatic string get_trace_string(
     int issue_slot,
     longint cur_inst_ret,
@@ -231,9 +232,9 @@ function automatic string get_trace_string(
     trace_pkt_t trace_p
 );
     string msg;
-    string extra_msg;
+    string event_msg;
 
-    $swrite(msg,
+    msg = $sformatf(
         "|   i%0d | %10d | %10d | 0x%h | 0x%h |",
         issue_slot,
         cur_inst_ret,
@@ -243,33 +244,55 @@ function automatic string get_trace_string(
     );
 
     if (trace_p.gpr_we && trace_p.gpr_addr != 5'b0) begin
-        $swrite(extra_msg,
+        event_msg = $sformatf(
             "         gpr[%d] = 0x%h |",
             trace_p.gpr_addr,
             trace_p.gpr_wdata
         );
-        msg = {msg, extra_msg};
+        msg = {msg, event_msg};
     end
 
-    if (trace_p.mem_we) begin
-        $swrite(extra_msg,
-            " mem[0x%h] = 0x%h |",
-            trace_p.mem_addr,
-            trace_p.mem_wdata
-        );
-        msg = {msg, extra_msg};
+    if (trace_p.mem_en) begin
+        if (trace_p.mem_opc[3] == OPC_LOAD[5]) begin
+            int read_bytes;
+
+            case (trace_p.mem_opc[2:0])
+                FN3_LB, FN3_LBU: read_bytes = 1;
+                FN3_LH, FN3_LHU: read_bytes = 2;
+                default:         read_bytes = 4;
+            endcase
+            
+            event_msg = $sformatf(
+                "      read_%0db mem[0x%h] |",
+                read_bytes,
+                trace_p.mem_addr
+            );
+        end else begin
+            string written_val;
+
+            case (trace_p.mem_opc[2:0])
+                FN3_SB:  written_val = $sformatf("0x%h      ", trace_p.mem_wdata[7:0]);
+                FN3_SH:  written_val = $sformatf("0x%h    ", trace_p.mem_wdata[15:0]);
+                default: written_val = $sformatf("0x%h", trace_p.mem_wdata);
+            endcase
+
+            event_msg = $sformatf(
+                " mem[0x%h] = %s |",
+                trace_p.mem_addr,
+                written_val
+            );
+        end
+        
+        msg = {msg, event_msg};
     end
 
     if (trace_p.pc_we) begin
-        $swrite(extra_msg,
-            "              pc = 0x%h |",
-            trace_p.pc_wdata
-        );
-        msg = {msg, extra_msg};
+        event_msg = $sformatf("              pc = 0x%h |", trace_p.pc_wdata);
+        msg = {msg, event_msg};
     end
 
     return msg;
 endfunction
-// verilator lint_on UNUSEDSIGNAL
+`endif
 
 endmodule

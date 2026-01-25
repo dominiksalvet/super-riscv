@@ -42,10 +42,10 @@ module lsu // load-store unit
     output logic        dmem_hwrite,
 
     input logic [31:0]  dmem_hrdata,
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
     input logic         dmem_hready,
     input logic         dmem_hresp
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 );
 
 lsu_pkt_t r_ex2_lsu_p;

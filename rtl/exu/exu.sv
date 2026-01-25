@@ -18,7 +18,6 @@
 
 module exu // execution unit
     import srv_defs::*;
-    import riscv_defs::*;
 (
     input logic  clk,
     input logic  rst,
@@ -390,14 +389,16 @@ always_ff @(posedge clk) begin : ex2_regs
         r_ex2_i0_trace_p <= r_i0_trace_p;
         r_ex2_i0_trace_p.pc_we <= bru_take_jmp && bru_jmp_src_i0;
         r_ex2_i0_trace_p.pc_wdata <= bru_jmp_addr;
-        r_ex2_i0_trace_p.mem_we <= i0_uses_lsu && (lsu_p.opc[3] == OPC_STORE[5]);
+        r_ex2_i0_trace_p.mem_en <= i0_uses_lsu;
+        r_ex2_i0_trace_p.mem_opc <= lsu_p.opc;
         r_ex2_i0_trace_p.mem_addr <= lsu_p.addr;
         r_ex2_i0_trace_p.mem_wdata <= lsu_p.wdata;
 
         r_ex2_i1_trace_p <= r_i1_trace_p;
         r_ex2_i1_trace_p.pc_we <= bru_take_jmp && !bru_jmp_src_i0;
         r_ex2_i1_trace_p.pc_wdata <= bru_jmp_addr;
-        r_ex2_i1_trace_p.mem_we <= i1_uses_lsu && (lsu_p.opc[3] == OPC_STORE[5]);
+        r_ex2_i1_trace_p.mem_en <= i1_uses_lsu;
+        r_ex2_i1_trace_p.mem_opc <= lsu_p.opc;
         r_ex2_i1_trace_p.mem_addr <= lsu_p.addr;
         r_ex2_i1_trace_p.mem_wdata <= lsu_p.wdata;
 `endif
@@ -527,10 +528,8 @@ assign exu_res_p = '{r_wb_i0_valid && r_wb_i0_rd_en && exu_ready, r_wb_i0_rd_add
 assign exu_ready = !lsu_addr_wait && !lsu_resp_wait;
 
 `ifdef EXEC_TRACE_SUPPORT
-// verilator lint_off UNUSEDSIGNAL
     trace_pkt_t wb_i0_final_trace_p;
     trace_pkt_t wb_i1_final_trace_p;
-// verilator lint_on UNUSEDSIGNAL
 
     always_comb begin : prepare_final_trace
         wb_i0_final_trace_p = r_wb_i0_trace_p;

@@ -37,9 +37,9 @@ module inst_dec // instruction decoder
 );
 
 // instructions fields
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
 logic [6:0] funct7;
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 logic [4:0] rs2;
 logic [4:0] rs1;
 logic [2:0] funct3;
