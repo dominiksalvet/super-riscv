@@ -18,7 +18,7 @@
 
 // TODO: use asynchronous low active reset
 module super_riscv // Super RISC-V top module
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic        clk,
     input logic        rst,

@@ -18,7 +18,7 @@
 
 // TODO: add full support for AHB-Lite
 module ifu // instruction fetch unit
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic        clk,
     input logic        rst,

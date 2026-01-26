@@ -18,8 +18,8 @@
 
 // testbench, top module for testing
 module tb
-    import srv_defs::*;
-    import riscv_defs::*;
+    import srv_types_pkg::*;
+    import riscv_types_pkg::*;
 (
     input logic clk // clock is driven by verilator
 );

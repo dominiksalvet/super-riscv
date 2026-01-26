@@ -17,7 +17,7 @@
 */
 
 module fwd_init // forwarding initiator
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic [4:0] rs_addr,
 

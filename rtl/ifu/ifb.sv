@@ -17,7 +17,7 @@
 */
 
 module ifb // instruction fetch buffer
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic clk,
     input logic rst,

@@ -60,9 +60,8 @@ RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
 NEWLIB_INCLUDE ?= /opt/newlib/riscv64-unknown-elf/include
 NEWLIB_LIB ?= /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
 
-# TODO: rename package files and their directories (include -> pkg)
-SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
-            $(RTL_DIR)/include/riscv_defs.sv\
+SRC_FILES = $(RTL_DIR)/pkg/srv_types_pkg.sv\
+            $(RTL_DIR)/pkg/riscv_types_pkg.sv\
             $(RTL_DIR)/super_riscv.sv\
             $(RTL_DIR)/ifu/ifu.sv\
             $(RTL_DIR)/ifu/ifb.sv\

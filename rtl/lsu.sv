@@ -18,8 +18,8 @@
 
 // TODO: add full support for AHB-Lite
 module lsu // load-store unit
-    import srv_defs::*;
-    import riscv_defs::*;
+    import srv_types_pkg::*;
+    import riscv_types_pkg::*;
 (
     input logic  clk,
     input logic  rst,

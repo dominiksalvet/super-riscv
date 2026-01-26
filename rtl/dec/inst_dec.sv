@@ -17,8 +17,8 @@
 */
 
 module inst_dec // instruction decoder
-    import riscv_defs::*;
-    import srv_defs::*;
+    import riscv_types_pkg::*;
+    import srv_types_pkg::*;
 (
     input logic [31:0] inst,
 

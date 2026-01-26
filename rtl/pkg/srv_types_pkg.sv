@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package srv_defs; // Super RISC-V defines
+package srv_types_pkg; // Super RISC-V data types
 
 typedef struct packed {
     logic           i0_valid;

@@ -17,7 +17,7 @@
 */
 
 module dec // decoding unit
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic  clk,
     input logic  rst,
