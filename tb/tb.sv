@@ -218,7 +218,7 @@ final begin : print_perf_stats
     end
 end
 
-// TODO: add header
+// TODO: add header + footer?
 // TODO: add disassembly
 // TODO: print to file
 // TODO: make it possible to disable

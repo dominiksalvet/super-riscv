@@ -60,6 +60,7 @@ RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
 NEWLIB_INCLUDE ?= /opt/newlib/riscv64-unknown-elf/include
 NEWLIB_LIB ?= /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
 
+# TODO: rename package files and their directories (include -> pkg)
 SRC_FILES = $(RTL_DIR)/include/srv_defs.sv\
             $(RTL_DIR)/include/riscv_defs.sv\
             $(RTL_DIR)/super_riscv.sv\
@@ -180,7 +181,6 @@ $(OUT_TESTS_DIR)/input_copy.txt: FORCE
 sim: $(SIM_PREREQ)
 	$(EXEC_RECIPE)
 
-# TODO: add support for CPU execution tracing
 # when generating debug info, simulation is allowed to fail
 debug: $(DEBUG_PREREQ)
 	rm -f $(WAVES_FILE)
