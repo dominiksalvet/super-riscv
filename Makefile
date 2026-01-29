@@ -131,7 +131,7 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 $(BUILD_DIR)_verilated: $(SRC_FILES) | $(BUILD_DIR)
-	$(VERILATOR) --cc --exe -Wall --top-module $(TOP_MODULE)\
+	$(VERILATOR) --cc --exe -Wall -Wno-fatal --top-module $(TOP_MODULE)\
           --assert\
           --trace-fst --trace-structs\
           --x-assign unique --x-initial unique\
