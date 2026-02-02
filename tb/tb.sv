@@ -219,11 +219,11 @@ final begin : print_perf_stats
 end
 
 // TODO: add header + footer?
-// TODO: add disassembly
 // TODO: print to file
 // TODO: make it possible to disable
 // TODO: sync all timing (and solve off-by-ones) in this TB
 // TODO: consider moving this to a separate file
+// TODO: what to do with unsupported mem operation widths?
 `ifdef EXEC_TRACE_SUPPORT
 function automatic string get_trace_string(
     int issue_slot,
@@ -235,12 +235,13 @@ function automatic string get_trace_string(
     string event_msg;
 
     msg = $sformatf(
-        "|   i%0d | %10d | %10d | 0x%h | 0x%h |",
+        "|   i%0d | %10d | %10d | 0x%h | 0x%h | %-30s |",
         issue_slot,
         cur_inst_ret,
         cur_cycle,
         trace_p.addr,
-        trace_p.inst
+        trace_p.inst,
+        riscv_disasm(trace_p.addr, trace_p.inst)
     );
 
     if (trace_p.gpr_we && trace_p.gpr_addr != 5'b0) begin
@@ -292,6 +293,130 @@ function automatic string get_trace_string(
     end
 
     return msg;
+endfunction
+
+function automatic string riscv_disasm(
+    logic [31:0] inst_addr,
+    logic [31:0] inst
+);
+    string disasm;
+
+    logic [6:0] funct7;
+    logic [4:0] rs2;
+    logic [4:0] rs1;
+    logic [2:0] funct3;
+    logic [4:0] rd;
+    opcode_t    opcode;
+
+    int i_imm, s_imm, b_imm, j_imm;
+    logic [31:0] b_imm_tar, j_imm_tar;
+
+    funct7 = inst[31:25];
+    rs2    = inst[24:20];
+    rs1    = inst[19:15];
+    funct3 = inst[14:12];
+    rd     = inst[11:7];
+    opcode = opcode_t'(inst[6:0]);
+
+    i_imm = int'(signed'(inst[31:20]));
+    s_imm = int'(signed'({inst[31:25], inst[11:7]}));
+    b_imm = int'(signed'({inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}));
+    j_imm = int'(signed'({inst[31], inst[19:12], inst[20], inst[30:21], 1'b0}));
+
+    b_imm_tar = inst_addr + b_imm;
+    j_imm_tar = inst_addr + j_imm;
+
+    case (opcode)
+        OPC_OP_IMM: begin
+            case (funct3)
+                FN3_ADD_SUB: disasm = $sformatf("addi x%0d, x%0d, %0d", rd, rs1, i_imm);
+                FN3_SLL: begin
+                    if (funct7 == 7'b0000000)
+                        disasm = $sformatf("slli x%0d, x%0d, %0d", rd, rs1, inst[24:20]);
+                end
+                FN3_SLT:     disasm = $sformatf("slti x%0d, x%0d, %0d", rd, rs1, i_imm);
+                FN3_SLTU:    disasm = $sformatf("sltiu x%0d, x%0d, %0d", rd, rs1, i_imm);
+                FN3_XOR:     disasm = $sformatf("xori x%0d, x%0d, %0d", rd, rs1, i_imm);
+                FN3_SRL_SRA: begin
+                    case (funct7)
+                        7'b0000000: disasm = $sformatf("srli x%0d, x%0d, %0d", rd, rs1, inst[24:20]);
+                        7'b0100000: disasm = $sformatf("srai x%0d, x%0d, %0d", rd, rs1, inst[24:20]);
+                        default;
+                    endcase
+                end
+                FN3_OR:      disasm = $sformatf("ori x%0d, x%0d, %0d", rd, rs1, i_imm);
+                FN3_AND:     disasm = $sformatf("andi x%0d, x%0d, %0d", rd, rs1, i_imm);
+                default;
+            endcase
+        end
+        OPC_LUI: begin
+            disasm = $sformatf("lui x%0d, 0x%x", rd, inst[31:12]);
+        end
+        OPC_AUIPC: begin
+            disasm = $sformatf("auipc x%0d, 0x%x", rd, inst[31:12]);
+        end
+        OPC_OP: begin
+            case ({funct7, funct3})
+                {7'b0000000, FN3_ADD_SUB}: disasm = $sformatf("add x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0100000, FN3_ADD_SUB}: disasm = $sformatf("sub x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_SLL}:     disasm = $sformatf("sll x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_SLT}:     disasm = $sformatf("slt x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_SLTU}:    disasm = $sformatf("sltu x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_XOR}:     disasm = $sformatf("xor x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_SRL_SRA}: disasm = $sformatf("srl x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0100000, FN3_SRL_SRA}: disasm = $sformatf("sra x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_OR}:      disasm = $sformatf("or x%0d, x%0d, x%0d", rd, rs1, rs2);
+                {7'b0000000, FN3_AND}:     disasm = $sformatf("and x%0d, x%0d, x%0d", rd, rs1, rs2);
+                default;
+            endcase
+        end
+        OPC_JAL: begin
+            disasm = $sformatf("jal x%0d, 0x%h", rd, j_imm_tar);
+        end
+        OPC_JALR: begin
+            disasm = $sformatf("jalr x%0d, %0d(x%0d)", rd, i_imm, rs1);
+        end
+        OPC_BRANCH: begin
+            case (funct3)
+                FN3_BEQ:  disasm = $sformatf("beq x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                FN3_BNE:  disasm = $sformatf("bne x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                FN3_BLT:  disasm = $sformatf("blt x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                FN3_BGE:  disasm = $sformatf("bge x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                FN3_BLTU: disasm = $sformatf("bltu x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                FN3_BGEU: disasm = $sformatf("bgeu x%0d, x%0d, 0x%h", rs1, rs2, b_imm_tar);
+                default;
+            endcase
+        end
+        OPC_LOAD: begin
+            case (funct3)
+                FN3_LB:  disasm = $sformatf("lb x%0d, %0d(x%0d)", rd, i_imm, rs1);
+                FN3_LH:  disasm = $sformatf("lh x%0d, %0d(x%0d)", rd, i_imm, rs1);
+                FN3_LW:  disasm = $sformatf("lw x%0d, %0d(x%0d)", rd, i_imm, rs1);
+                FN3_LBU: disasm = $sformatf("lbu x%0d, %0d(x%0d)", rd, i_imm, rs1);
+                FN3_LHU: disasm = $sformatf("lhu x%0d, %0d(x%0d)", rd, i_imm, rs1);
+                default;
+            endcase
+        end
+        OPC_STORE: begin
+            case (funct3)
+                FN3_SB:  disasm = $sformatf("sb x%0d, %0d(x%0d)", rs2, s_imm, rs1);
+                FN3_SH:  disasm = $sformatf("sh x%0d, %0d(x%0d)", rs2, s_imm, rs1);
+                FN3_SW:  disasm = $sformatf("sw x%0d, %0d(x%0d)", rs2, s_imm, rs1);
+                default;
+            endcase
+        end
+        OPC_MISC_MEM: begin
+            if (funct3 == 3'b000)
+                disasm = "fence"; // all fence variants are disassembled like this
+        end
+        // TODO: add OPC_SYSTEM once ECALL and EBREAK is supported
+        default;
+    endcase
+
+    if (disasm.len() == 0)
+        disasm = "<unrecognized instruction>";
+
+    return disasm;
 endfunction
 `endif
 
