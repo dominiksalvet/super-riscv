@@ -107,9 +107,11 @@ always_ff @(posedge clk) begin : catch_decoded
                 r_i0_exec_p.alu_opc <= dec_i0_exec_p.alu_opc;
             end
 
-            if (dec_i0_en_p.agu)
+            if (dec_i0_en_p.agu) begin
                 r_i0_exec_p.agu_s1_sel <= dec_i0_exec_p.agu_s1_sel;
-            
+                r_i0_exec_p.agu_opc <= dec_i0_exec_p.agu_opc;
+            end
+
             if (dec_i0_en_p.bru || dec_i0_en_p.lsu)
                 r_i0_exec_p.extra_opc <= dec_i0_exec_p.extra_opc;
 
@@ -145,9 +147,11 @@ always_ff @(posedge clk) begin : catch_decoded
                 r_i1_exec_p.alu_opc <= dec_i1_exec_p.alu_opc;
             end
 
-            if (dec_i1_en_p.agu)
+            if (dec_i1_en_p.agu) begin
                 r_i1_exec_p.agu_s1_sel <= dec_i1_exec_p.agu_s1_sel;
-            
+                r_i1_exec_p.agu_opc <= dec_i1_exec_p.agu_opc;
+            end
+
             if (dec_i1_en_p.bru || dec_i1_en_p.lsu)
                 r_i1_exec_p.extra_opc <= dec_i1_exec_p.extra_opc;
 
@@ -287,8 +291,24 @@ always_comb begin : set_agu_operands
     endcase
 end
 
-assign i0_agu_res = i0_agu_s1 + r_i0_exec_p.imm;
-assign i1_agu_res = i1_agu_s1 + r_i1_exec_p.imm;
+always_comb begin : agu_compute
+    logic [31:0] i0_agu_add_res, i1_agu_add_res;
+
+    i0_agu_add_res = i0_agu_s1 + r_i0_exec_p.imm;
+    i1_agu_add_res = i1_agu_s1 + r_i1_exec_p.imm;
+
+    case (r_i0_exec_p.agu_opc)
+        AGU_ADD:      i0_agu_res = i0_agu_add_res;
+        AGU_JALR_ADD: i0_agu_res = {i0_agu_add_res[31:1], 1'b0};
+        default:      i0_agu_res = 'x;
+    endcase
+
+    case (r_i1_exec_p.agu_opc)
+        AGU_ADD:      i1_agu_res = i1_agu_add_res;
+        AGU_JALR_ADD: i1_agu_res = {i1_agu_add_res[31:1], 1'b0};
+        default:      i1_agu_res = 'x;
+    endcase
+end
 
 logic        bru_take_jmp;
 logic        bru_jmp_src_i0;
