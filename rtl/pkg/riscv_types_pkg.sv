@@ -55,7 +55,6 @@ typedef enum logic [2:0] {
     FN3_SW = 3'b010
 } store_fn3_t;
 
-// TODO: use this in srv_types_pkg.sv file
 typedef enum logic [2:0] {
     FN3_ADD_SUB =  3'b000,
     FN3_SLL =      3'b001,
