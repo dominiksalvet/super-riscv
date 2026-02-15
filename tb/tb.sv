@@ -136,7 +136,9 @@ initial begin : sim_init
     past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
 
+`ifdef EXEC_TRACE_SUPPORT
     $display(get_trace_header());
+`endif
 end
 
 assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
