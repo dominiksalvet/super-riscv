@@ -35,7 +35,14 @@ typedef struct packed {
     logic [31:0] pc_wdata;
 } trace_pkt_t;
 
-// TODO: add header + footer?
+function automatic string get_trace_header();
+    return {
+        " ---------------------------------------------------------------------------------------------------------------------------------------------------------- \n",
+        "| Slot | Retired    | Cycle      | Address    | Instruction | Disassembly                    | Events                                                      |\n",
+        "|------|------------|------------|------------|-------------|--------------------------------|-------------------------------------------------------------|"
+    };
+endfunction
+
 // TODO: print to file
 // TODO: make it possible to disable (maybe remove ifdef from tb.sv then?)
 // TODO: what to do with unsupported mem operation widths?
@@ -49,7 +56,7 @@ function automatic string get_trace_string(
     string event_msg;
 
     msg = $sformatf(
-        "|   i%0d | %10d | %10d | 0x%h | 0x%h | %-30s |",
+        "|   i%0d | %10d | %10d | 0x%h |  0x%h | %-30s |",
         issue_slot,
         cur_inst_ret,
         cur_cycle,

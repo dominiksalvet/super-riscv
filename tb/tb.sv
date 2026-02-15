@@ -135,6 +135,8 @@ initial begin : sim_init
     rst = 1'b1;
     past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
+
+    $display(get_trace_header());
 end
 
 assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
@@ -214,7 +216,7 @@ final begin : print_perf_stats
         if (core.exu0.r_wb_i0_valid && core.exu0.r_wb_i1_valid && core.exu0.r_wb_i0_lsu_en)
             final_inst_ret--;
 
-        $display("Executed instructions: %0d", final_inst_ret);
+        $display("Retired instructions: %0d", final_inst_ret);
     end
 end
 
