@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,6 +63,19 @@ always_ff @(posedge clk) begin : address_phase
         end
 
         r_ex2_lsu_p.valid <= lsu_p.valid;
+    end
+end
+
+always_ff @(posedge clk) begin : check_lsu_opcode
+    if (!rst) begin
+        load_illegal : assert (
+            !(r_ex2_lsu_p.valid && r_ex2_lsu_p.opc[3] == OPC_LOAD[5]) ||
+            r_ex2_lsu_p.opc[2:0] inside {FN3_LB, FN3_LH, FN3_LW, FN3_LBU, FN3_LHU}
+        );
+        store_illegal: assert (
+            !(r_ex2_lsu_p.valid && r_ex2_lsu_p.opc[3] == OPC_STORE[5]) ||
+            r_ex2_lsu_p.opc[2:0] inside {FN3_SB, FN3_SH, FN3_SW}
+        );
     end
 end
 
