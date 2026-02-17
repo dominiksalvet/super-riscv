@@ -120,6 +120,7 @@ longint inst_ret; // number of retired instructions
 longint i0_next_inst_ret;
 longint i1_next_inst_ret;
 
+// TODO: add execution trace arguments processing
 initial begin : sim_init
     if (!$value$plusargs("max+cycles=%d", max_cycles))
         max_cycles = DEFAULT_MAX_CYCLES;
@@ -145,6 +146,7 @@ assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
 assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 
 // TODO: sync all timing (and solve off-by-ones) in this TB
+// TODO: think about the trace/header print placement
 always_ff @(posedge clk) begin : sim_ctl
     // active for RESET_CYCLES rising edges of clock
     if (cycles == RESET_CYCLES - 1)

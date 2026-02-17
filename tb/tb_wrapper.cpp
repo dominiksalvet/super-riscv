@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 // ACCEPTED ARGUMENTS:
 //   +waves               enable signal values dump
 //   +waves+file=<path>   path of output signal waves file
+//   +trace               enable processor execution tracing
+//   +trace+file=<path>   processor execution trace output file
 //   +max+cycles=<value>  max cycles of simulation (0 - no limit)
 //   +test+path=<path>    path to memory image of test
 //   +verilator*          Verilator simulation runtime arguments

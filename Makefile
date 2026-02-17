@@ -22,6 +22,7 @@
 #   TEST_GROUP=<group>  selected group of tests
 #   TEST_NAME=<name>    test to be run on the CPU
 #   WAVES_FILE=<path>   path of output signal waves file
+#   TRACE_FILE=<path>   processor execution trace output file
 #   X_VAL=0|1|2         unknown values in SV are replaced with:
 #                       0 - zeros, 1 - ones, 2 - random values
 #   SEED=<value>        seed used for any randomized event
@@ -93,6 +94,7 @@ TEST_GROUPS = simple_asm\
 TEST_GROUP ?= simple_asm
 TEST_NAME ?= hello_world
 WAVES_FILE ?= $(OUT_DIR)/waves.fst
+TRACE_FILE ?= $(OUT_DIR)/trace.log
 X_VAL ?= 0
 
 TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
@@ -183,12 +185,17 @@ sim: $(SIM_PREREQ)
 
 # when generating debug info, simulation is allowed to fail
 debug: $(DEBUG_PREREQ)
-	rm -f $(WAVES_FILE)
+	rm -f $(WAVES_FILE) $(TRACE_FILE)
 	$(RV_SIZE) -G $(TEST_PREFIX)
-	$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) || true
-	test -f $(WAVES_FILE)
+	$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) +trace +trace+file=$(TRACE_FILE) || true
+	test -f $(WAVES_FILE) && test -f $(TRACE_FILE)
 
-waves: debug
+# TODO: is this solution ideal? (i.e., separate target)
+$(WAVES_FILE):
+	@echo "First use 'debug' target to generate '$@' file."
+	@false
+
+show_waves: $(WAVES_FILE)
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
 
 print_test_groups:
