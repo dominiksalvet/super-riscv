@@ -203,6 +203,8 @@ TOP.tb.core.dec0.dec_i0_en_p.lsu
 TOP.tb.core.dec0.dec_i0_en_p.pc
 @100000028
 [color] 2
+TOP.tb.core.dec_i0_exec_p.agu_opc
+[color] 2
 TOP.tb.core.dec0.dec_i0_exec_p.agu_s1_sel[31:0]
 [color] 2
 TOP.tb.core.dec0.dec_i0_exec_p.alu_opc[3:0]
@@ -233,6 +235,8 @@ TOP.tb.core.dec0.dec_i1_en_p.lsu
 [color] 3
 TOP.tb.core.dec0.dec_i1_en_p.pc
 @100000028
+[color] 3
+TOP.tb.core.dec_i1_exec_p.agu_opc
 [color] 3
 TOP.tb.core.dec0.dec_i1_exec_p.agu_s1_sel[31:0]
 [color] 3
@@ -308,6 +312,8 @@ TOP.tb.core.exu0.r_i0_exec_p.alu_s2_sel
 TOP.tb.core.exu0.r_i0_exec_p.alu_opc[3:0]
 [color] 2
 TOP.tb.core.exu0.r_i0_exec_p.agu_s1_sel
+[color] 2
+TOP.tb.core.exu0.r_i0_exec_p.agu_opc
 @28
 [color] 2
 TOP.tb.core.exu0.r_i0_exec_p.extra_opc[3:0]
@@ -339,6 +345,8 @@ TOP.tb.core.exu0.r_i1_exec_p.alu_s2_sel
 TOP.tb.core.exu0.r_i1_exec_p.alu_opc[3:0]
 [color] 3
 TOP.tb.core.exu0.r_i1_exec_p.agu_s1_sel
+[color] 3
+TOP.tb.core.exu0.r_i1_exec_p.agu_opc
 @28
 [color] 3
 TOP.tb.core.exu0.r_i1_exec_p.extra_opc[3:0]
