@@ -157,7 +157,8 @@ assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
 assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 
 // TODO: sync all timing (and solve off-by-ones) in this TB
-// TODO: think about the trace/header print placement (and initial/final block names)
+// TODO: think about the trace/header print placement
+// TODO: fix trace on fatals (use fclose before)
 always_ff @(posedge clk) begin : sim_ctl
     // active for RESET_CYCLES rising edges of clock
     if (cycles == RESET_CYCLES - 1)
