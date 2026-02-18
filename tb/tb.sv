@@ -111,42 +111,52 @@ parameter MB_GETC_ADDR = MAILBOX_BASE + 8; // read a single character
 parameter STDIN_FD = 32'h80000000; // might not work on some simulators (need manual $fopen)
 
 // simulation control variables
-longint cycles;
+longint cycles = 0;
 longint max_cycles;
-string mem_image_path;
+bit     exec_trace_enabled = 0;
+integer exec_trace_fd;
 
 // basic peformance monitoring
-longint inst_ret; // number of retired instructions
+longint inst_ret = 0; // number of retired instructions
 longint i0_next_inst_ret;
 longint i1_next_inst_ret;
 
-// TODO: add execution trace arguments processing
 initial begin : sim_init
+    string mem_image_path;
+    string exec_trace_path;
+
     if (!$value$plusargs("max+cycles=%d", max_cycles))
         max_cycles = DEFAULT_MAX_CYCLES;
 
     if (!$value$plusargs("test+path=%s", mem_image_path))
         $fatal(1, "No test path specified");
+    
+    if ($test$plusargs("trace")) begin
+        if (!$value$plusargs("trace+file=%s", exec_trace_path))
+            exec_trace_path = "trace.log";
+
+        exec_trace_fd = $fopen(exec_trace_path, "w");
+        if (exec_trace_fd == 0)
+            $fatal(1, {"Unable to create file for trace: ", exec_trace_path});
+
+        exec_trace_enabled = 1;
+    end
 
     $readmemh(mem_image_path, mem.r_mem);
-
-    cycles = 0;
-    inst_ret = 0;
 
     rst = 1'b1;
     past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
 
-`ifdef EXEC_TRACE_SUPPORT
-    $display(get_trace_header());
-`endif
+    if (exec_trace_enabled)
+        $fdisplay(exec_trace_fd, get_trace_header());
 end
 
 assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
 assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 
 // TODO: sync all timing (and solve off-by-ones) in this TB
-// TODO: think about the trace/header print placement
+// TODO: think about the trace/header print placement (and initial/final block names)
 always_ff @(posedge clk) begin : sim_ctl
     // active for RESET_CYCLES rising edges of clock
     if (cycles == RESET_CYCLES - 1)
@@ -158,11 +168,13 @@ always_ff @(posedge clk) begin : sim_ctl
 
 `ifdef EXEC_TRACE_SUPPORT
     // CPU execution trace
-    if (core.exu0.r_wb_i0_valid)
-        $display(get_trace_string(0, i0_next_inst_ret, cycles, core.exu0.wb_i0_final_trace_p));
+    if (exec_trace_enabled) begin 
+        if (core.exu0.r_wb_i0_valid)
+            $fdisplay(exec_trace_fd, get_trace_string(0, i0_next_inst_ret, cycles, core.exu0.wb_i0_final_trace_p));
 
-    if (core.exu0.r_wb_i1_valid)
-        $display(get_trace_string(1, i1_next_inst_ret, cycles, core.exu0.wb_i1_final_trace_p));
+        if (core.exu0.r_wb_i1_valid)
+            $fdisplay(exec_trace_fd, get_trace_string(1, i1_next_inst_ret, cycles, core.exu0.wb_i1_final_trace_p));
+    end
 `endif
 
     cycles <= cycles + 1;
@@ -210,6 +222,9 @@ end
 
 final begin : print_perf_stats
     longint final_inst_ret;
+
+    if (exec_trace_enabled)
+        $fclose(exec_trace_fd);
 
     if (cycles > 0) begin
         $display("Simulated cycles: %0d", cycles - 1);

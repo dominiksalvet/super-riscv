@@ -43,8 +43,6 @@ function automatic string get_trace_header();
     };
 endfunction
 
-// TODO: print to file
-// TODO: make it possible to disable (maybe remove ifdef from tb.sv then?)
 function automatic string get_trace_string(
     int issue_slot,
     longint cur_inst_ret,
