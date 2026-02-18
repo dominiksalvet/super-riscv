@@ -185,17 +185,14 @@ sim: $(SIM_PREREQ)
 
 # when generating debug info, simulation is allowed to fail
 debug: $(DEBUG_PREREQ)
-	rm -f $(WAVES_FILE) $(TRACE_FILE)
 	$(RV_SIZE) -G $(TEST_PREFIX)
-	$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) +trace +trace+file=$(TRACE_FILE) || true
+	rm -f $(WAVES_FILE) $(TRACE_FILE)
+	-$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) +trace +trace+file=$(TRACE_FILE)
 	test -f $(WAVES_FILE) && test -f $(TRACE_FILE)
 
-# TODO: is this solution ideal? (i.e., separate target)
-$(WAVES_FILE):
-	@echo "First use 'debug' target to generate '$@' file."
-	@false
-
-show_waves: $(WAVES_FILE)
+# TODO: update readme to reflect this target change
+open_waves:
+	@test -f $(WAVES_FILE) || { echo "First use 'debug' target to generate '$(WAVES_FILE)' file."; false; }
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
 
 print_test_groups:
