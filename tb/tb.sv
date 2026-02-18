@@ -121,6 +121,7 @@ longint inst_ret = 0; // number of retired instructions
 longint i0_next_inst_ret;
 longint i1_next_inst_ret;
 
+// TODO: check that mem_image_path exists
 initial begin : sim_init
     string mem_image_path;
     string exec_trace_path;
@@ -142,11 +143,11 @@ initial begin : sim_init
         exec_trace_enabled = 1;
     end
 
-    $readmemh(mem_image_path, mem.r_mem);
-
     rst = 1'b1;
     past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
+
+    $readmemh(mem_image_path, mem.r_mem);
 
     if (exec_trace_enabled)
         $fdisplay(exec_trace_fd, get_trace_header());
@@ -220,7 +221,7 @@ always_comb begin : mailbox_ctl_reads
     end
 end
 
-final begin : print_perf_stats
+final begin : finish_sim
     longint final_inst_ret;
 
     if (exec_trace_enabled)
