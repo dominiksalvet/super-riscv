@@ -39,6 +39,7 @@ make_log()
     make "$@"                # then execute it
 }
 
+# TODO: add support for test regression (first - make sim TEST_GROUP=simple_c ASSERTS=1)
 main()
 (
     mkdir -p "$OUT_DIR" &&
