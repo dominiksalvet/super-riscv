@@ -121,11 +121,12 @@ longint inst_ret = 0; // number of retired instructions
 longint i0_next_inst_ret;
 longint i1_next_inst_ret;
 
-// TODO: check that mem_image_path exists
 initial begin : sim_init
-    string mem_image_path;
-    string exec_trace_path;
+    string  mem_image_path;
+    integer mem_image_fd;
+    string  exec_trace_path;
 
+    // argument processing
     if (!$value$plusargs("max+cycles=%d", max_cycles))
         max_cycles = DEFAULT_MAX_CYCLES;
 
@@ -136,21 +137,29 @@ initial begin : sim_init
         if (!$value$plusargs("trace+file=%s", exec_trace_path))
             exec_trace_path = "trace.log";
 
+        exec_trace_enabled = 1;
+    end
+
+    // initial file operations
+    mem_image_fd = $fopen(mem_image_path, "r");
+    if (mem_image_fd == 0)
+        $fatal(1, {"Unable to read memory image file: ", mem_image_path});
+    $fclose(mem_image_fd);
+
+    $readmemh(mem_image_path, mem.r_mem);
+
+    if (exec_trace_enabled) begin
         exec_trace_fd = $fopen(exec_trace_path, "w");
         if (exec_trace_fd == 0)
             $fatal(1, {"Unable to create file for trace: ", exec_trace_path});
 
-        exec_trace_enabled = 1;
+        $fdisplay(exec_trace_fd, get_trace_header());
     end
 
+    // signal init
     rst = 1'b1;
     past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
-
-    $readmemh(mem_image_path, mem.r_mem);
-
-    if (exec_trace_enabled)
-        $fdisplay(exec_trace_fd, get_trace_header());
 end
 
 assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
