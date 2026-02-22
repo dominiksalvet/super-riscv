@@ -143,7 +143,7 @@ initial begin : sim_init
     // initial file operations
     mem_image_fd = $fopen(mem_image_path, "r");
     if (mem_image_fd == 0)
-        $fatal(1, {"Unable to read memory image file: ", mem_image_path});
+        $fatal(1, {"Unable to read test memory image file: ", mem_image_path});
     $fclose(mem_image_fd);
 
     $readmemh(mem_image_path, mem.r_mem);
@@ -167,7 +167,7 @@ assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 
 // TODO: sync all timing (and solve off-by-ones) in this TB
 // TODO: think about the trace/header print placement
-// TODO: fix trace on fatals (use fclose before)
+// TODO: stop using fatals on observable sim exit, put return value into a file instead (test_ret_val)
 always_ff @(posedge clk) begin : sim_ctl
     // active for RESET_CYCLES rising edges of clock
     if (cycles == RESET_CYCLES - 1)
@@ -231,6 +231,7 @@ always_comb begin : mailbox_ctl_reads
     end
 end
 
+// TODO: make sure this will not go wrong if called after any $fatal()
 final begin : finish_sim
     longint final_inst_ret;
 

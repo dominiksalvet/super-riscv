@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         tb->eval();
     }
 
-    // TODO: call these even on $fatal or assertions
+    // TODO: call this even on $fatal (both implicit and explicit)
     tb->final(); // call final blocks
 
     if (waves)
