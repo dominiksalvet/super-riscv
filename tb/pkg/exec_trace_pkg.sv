@@ -38,7 +38,7 @@ typedef struct packed {
 function automatic string get_trace_header();
     return {
         " ---------------------------------------------------------------------------------------------------------------------------------------------------------- \n",
-        "| Slot | Retired    | Cycle      | Address    | Instruction | Disassembly                    | Events                                                      |\n",
+        "| Slot | Cycle      | Retired    | Address    | Instruction | Disassembly                    | Events                                                      |\n",
         "|------|------------|------------|------------|-------------|--------------------------------|-------------------------------------------------------------|"
     };
 endfunction
@@ -55,8 +55,8 @@ function automatic string get_trace_string(
     msg = $sformatf(
         "|   i%0d | %10d | %10d | 0x%h |  0x%h | %-30s |",
         issue_slot,
-        cur_inst_ret,
         cur_cycle,
+        cur_inst_ret,
         trace_p.addr,
         trace_p.inst,
         riscv_disasm(trace_p.addr, trace_p.inst)
