@@ -220,6 +220,7 @@ assign mb_halt_event = mem_write && mem.r_dmem_haddr == MB_HALT_ADDR;
 assign mb_putc_event = mem_write && mem.r_dmem_haddr == MB_PUTC_ADDR;
 assign mb_getc_event = mem_read && mem.r_dmem_haddr == MB_GETC_ADDR;
 
+// TODO: add support for storing program STDOUT to a file?
 // the core uses mailbox addresses to send signals to testbench
 always_ff @(posedge clk) begin : mailbox_ctl_writes
     if (mb_halt_event) begin
@@ -241,7 +242,7 @@ always_comb begin : mailbox_ctl_reads
     end
 end
 
-// TODO: move print SIM_END together with perf stats under sim_started variable?
+// TODO: move print SIM_END together with perf stats under sim_started variable? or move SIM_START to the very start of initial block
 final begin : finish_sim
     longint final_inst_ret;
 
