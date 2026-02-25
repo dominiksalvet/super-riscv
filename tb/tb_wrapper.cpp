@@ -17,13 +17,14 @@
 */
 
 // ACCEPTED ARGUMENTS:
-//   +waves               enable signal values dump
-//   +waves+file=<path>   path of output signal waves file
-//   +trace               enable processor execution tracing
-//   +trace+file=<path>   processor execution trace output file
-//   +max+cycles=<value>  max cycles of simulation (0 - no limit)
-//   +test+path=<path>    path to memory image of test
-//   +verilator*          Verilator simulation runtime arguments
+//   +waves                enable signal values dump
+//   +waves+file=<path>    path of output signal waves file
+//   +trace                enable processor execution tracing
+//   +trace+file=<path>    processor execution trace output file
+//   +ret+val+file=<path>  file with return value of simulated test
+//   +max+cycles=<value>   max cycles of simulation (0 - no limit)
+//   +test+path=<path>     path to memory image of test
+//   +verilator*           Verilator simulation runtime arguments
 
 #include <iostream>
 #include <string>

@@ -97,6 +97,7 @@ X_VAL ?= 0
 
 TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
 TEST_PREFIX = $(TEST_BUILD_DIR)/$(TEST_NAME)
+RET_VAL_FILE = $(SIM_OUT_DIR)/ret_val.txt
 WAVES_FILE = $(SIM_OUT_DIR)/waves.fst
 TRACE_FILE = $(SIM_OUT_DIR)/trace.log
 EXEC_FLAGS =
@@ -113,6 +114,7 @@ ifdef SEED
     EXEC_FLAGS += +verilator+seed+$(SEED)
 endif
 EXEC_FLAGS += +test+path=$(TEST_PREFIX).hex
+EXEC_FLAGS += +ret+val+file=$(RET_VAL_FILE)
 
 # extra arguments for building tests (programs)
 TEST_BUILD_ARGS = \
@@ -148,7 +150,7 @@ $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 
 # this target uses a precompiled program and ignores user macros
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
-	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex
+	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex +ret+val+file=$(OUT_DIR)/ret_val.txt
 
 # this rule must be executed even when target exists
 FORCE:
@@ -185,13 +187,14 @@ $(SIM_OUT_DIR):
 
 sim: $(SIM_PREREQ) | $(SIM_OUT_DIR)
 	$(EXEC_RECIPE)
+	read -r ret_val_var < $(RET_VAL_FILE) && test "$$ret_val_var" = 0
 
 # when generating debug info, simulation is allowed to fail
 debug: $(DEBUG_PREREQ) | $(SIM_OUT_DIR)
 	$(RV_SIZE) -G $(TEST_PREFIX)
-	rm -f $(WAVES_FILE) $(TRACE_FILE)
+	rm -f $(RET_VAL_FILE)
 	-$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) +trace +trace+file=$(TRACE_FILE)
-	test -f $(WAVES_FILE) && test -f $(TRACE_FILE)
+	test -f $(RET_VAL_FILE)
 
 open_waves:
 	@test -f $(WAVES_FILE) || { echo "First use 'debug' target to generate '$(WAVES_FILE)' file."; false; }
