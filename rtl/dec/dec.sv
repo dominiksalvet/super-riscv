@@ -59,7 +59,7 @@ module dec // decoding unit
 
 inst_pkt_t r_inst_p;
 
-// TODO: consider instruction predecode to reduce switching activity (rs1/2, imm, ...)
+// TODO: consider rs1/rs2 predecode to reduce switching activity
 always_ff @(posedge clk) begin : catch_inst
     if (rst || flush_dec) begin
         r_inst_p.i0_valid <= 1'b0;

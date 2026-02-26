@@ -48,6 +48,8 @@ double sc_time_stamp() {
 
 int main(int argc, char** argv)
 {
+    std::cout << "[SIM_START]" << std::endl;
+
     bool waves = false;
     string waves_path = "waves.fst";
 
@@ -115,6 +117,8 @@ int main(int argc, char** argv)
         tfp->dump(time_stamp);
         tfp->close();
     }
+
+    std::cout << "[SIM_END]" << std::endl;
 
     return 0;
 }

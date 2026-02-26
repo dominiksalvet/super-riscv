@@ -127,7 +127,7 @@ initial begin : sim_init
     integer mem_image_fd;
     string  exec_trace_path;
     string  ret_val_path;
-    
+
     // argument processing
     if (!$value$plusargs("max+cycles=%d", max_cycles))
         max_cycles = DEFAULT_MAX_CYCLES;
@@ -164,8 +164,6 @@ initial begin : sim_init
     ret_val_fd = $fopen(ret_val_path, "w");
     if (ret_val_fd == 0)
         $fatal(1, {"Unable to use file for test return value: ", ret_val_path});
-
-    $display("[SIM_START]");
 
     // signal init
     rst = 1'b1;
@@ -220,7 +218,6 @@ assign mb_halt_event = mem_write && mem.r_dmem_haddr == MB_HALT_ADDR;
 assign mb_putc_event = mem_write && mem.r_dmem_haddr == MB_PUTC_ADDR;
 assign mb_getc_event = mem_read && mem.r_dmem_haddr == MB_GETC_ADDR;
 
-// TODO: add support for storing program STDOUT to a file?
 // the core uses mailbox addresses to send signals to testbench
 always_ff @(posedge clk) begin : mailbox_ctl_writes
     if (mb_halt_event) begin
@@ -242,7 +239,6 @@ always_comb begin : mailbox_ctl_reads
     end
 end
 
-// TODO: move print SIM_END together with perf stats under sim_started variable? or move SIM_START to the very start of initial block
 final begin : finish_sim
     longint final_inst_ret;
 
@@ -257,8 +253,6 @@ final begin : finish_sim
 
         $display("Retired instructions: %0d", final_inst_ret);
     end
-
-    $display("[SIM_END]");
 
     if (ret_val_fd != 0)
         $fclose(ret_val_fd);
