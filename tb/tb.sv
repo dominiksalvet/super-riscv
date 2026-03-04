@@ -64,7 +64,7 @@ ahb_mem mem (
 );
 
 // basic AHB-Lite protocol checker
-logic past_rst;
+logic past_rst = 1'b0;
 
 always_ff @(posedge clk) begin : check_ahb
     if (past_rst) begin
@@ -92,7 +92,9 @@ always_ff @(posedge clk) begin : check_ahb
                 default;
             endcase
         end
-    end   
+    end
+
+    past_rst <= rst;
 end
 
 // simulation constants
@@ -116,11 +118,6 @@ longint max_cycles;
 bit     exec_trace_enabled = 0;
 integer exec_trace_fd = 0;
 integer ret_val_fd = 0;
-
-// basic peformance monitoring
-longint inst_ret = 0; // number of retired instructions
-longint i0_next_inst_ret;
-longint i1_next_inst_ret;
 
 initial begin : sim_init
     string  mem_image_path;
@@ -166,10 +163,16 @@ initial begin : sim_init
         $fatal(1, {"Unable to use file for test return value: ", ret_val_path});
 
     // signal init
-    rst = 1'b1;
-    past_rst = 1'b0;
     rst_vec = DEFAULT_RST_VEC;
 end
+
+// active for RESET_CYCLES rising edges of clock
+assign rst = cycles < RESET_CYCLES;
+
+// basic performance monitoring
+longint inst_ret = 0; // number of retired instructions
+longint i0_next_inst_ret;
+longint i1_next_inst_ret;
 
 assign i0_next_inst_ret = inst_ret + longint'(core.exu0.r_wb_i0_valid);
 assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
@@ -177,10 +180,6 @@ assign i1_next_inst_ret = i0_next_inst_ret + longint'(core.exu0.r_wb_i1_valid);
 // TODO: sync all timing (and solve off-by-ones) in this TB
 // TODO: think about the trace/header print placement
 always_ff @(posedge clk) begin : sim_ctl
-    // active for RESET_CYCLES rising edges of clock
-    if (cycles == RESET_CYCLES - 1)
-        rst <= 1'b0;
-
     // max cycles timeout, if not halting the same cycle
     if (max_cycles != 0 && cycles >= max_cycles && !mb_halt_event) begin
         $display("[TIMEOUT] Maximum cycles limit (%0d) reached", max_cycles);
@@ -199,7 +198,6 @@ always_ff @(posedge clk) begin : sim_ctl
 `endif
 
     cycles <= cycles + 1;
-    past_rst <= rst;
 
     if (!rst && core.exu0.exu_ready)
         inst_ret <= i1_next_inst_ret;
@@ -233,6 +231,7 @@ end
 
 always_comb begin : mailbox_ctl_reads
     if (mb_getc_event) begin
+        // TODO: meta events in always_comb are not a good idea (may trigger multiple times)
         dmem_hrdata_to_core = $fgetc(STDIN_FD);
     end else begin
         dmem_hrdata_to_core = dmem_hrdata_from_mem;
@@ -240,19 +239,9 @@ always_comb begin : mailbox_ctl_reads
 end
 
 final begin : finish_sim
-    longint final_inst_ret;
-
-    if (cycles > 0) begin
-        $display("Simulated cycles: %0d", cycles - 1);
-
-        // also include packet that caused halt (not retired yet)
-        final_inst_ret = i1_next_inst_ret;
-        // if halt was performed from i0, i1 should not be considered executed
-        if (core.exu0.r_wb_i0_valid && core.exu0.r_wb_i1_valid && core.exu0.r_wb_i0_lsu_en)
-            final_inst_ret--;
-
-        $display("Retired instructions: %0d", final_inst_ret);
-    end
+    // TODO: align these values with real program architectural state
+    $display("Simulated cycles: %0d", cycles);
+    $display("Retired instructions: %0d", inst_ret);
 
     if (ret_val_fd != 0)
         $fclose(ret_val_fd);
