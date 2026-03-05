@@ -53,7 +53,6 @@ logic [1:0]  dmem_htrans;
 logic [31:0] dmem_hwdata;
 logic        dmem_hwrite;
 logic [31:0] dmem_hrdata_to_core;
-logic [31:0] dmem_hrdata_from_mem;
 logic        dmem_hready;
 logic        dmem_hresp;
 
@@ -62,6 +61,12 @@ ahb_mem mem (
     .dmem_hrdata(dmem_hrdata_from_mem),
     .*
 );
+
+logic [31:0] dmem_hrdata_from_mem;
+logic [31:0] dmem_hrdata_from_mb;
+bit          use_hrdata_from_mb = 0;
+
+assign dmem_hrdata_to_core = use_hrdata_from_mb ? dmem_hrdata_from_mb : dmem_hrdata_from_mem;
 
 // basic AHB-Lite protocol checker
 logic past_rst = 1'b0;
@@ -204,20 +209,22 @@ always_ff @(posedge clk) begin : sim_ctl
 end
 
 // testbench mailbox control
-logic mem_read;
-logic mem_write;
-logic mb_halt_event;
-logic mb_putc_event;
-logic mb_getc_event;
+bit mem_read_event;
+bit mem_write_event;
+bit mb_halt_event;
+bit mb_putc_event;
+bit mb_getc_event;
 
-assign mem_read = !rst && mem.r_dmem_htrans == 2'b10 && !mem.r_dmem_hwrite;
-assign mem_write = !rst && mem.r_dmem_htrans == 2'b10 && mem.r_dmem_hwrite;
-assign mb_halt_event = mem_write && mem.r_dmem_haddr == MB_HALT_ADDR;
-assign mb_putc_event = mem_write && mem.r_dmem_haddr == MB_PUTC_ADDR;
-assign mb_getc_event = mem_read && mem.r_dmem_haddr == MB_GETC_ADDR;
+assign mem_read_event = !rst && dmem_htrans == 2'b10 && !dmem_hwrite && dmem_hready;
+assign mem_write_event = !rst && mem.r_dmem_htrans == 2'b10 && mem.r_dmem_hwrite;
+assign mb_halt_event = mem_write_event && mem.r_dmem_haddr == MB_HALT_ADDR;
+assign mb_putc_event = mem_write_event && mem.r_dmem_haddr == MB_PUTC_ADDR;
+assign mb_getc_event = mem_read_event && dmem_haddr == MB_GETC_ADDR;
 
 // the core uses mailbox addresses to send signals to testbench
-always_ff @(posedge clk) begin : mailbox_ctl_writes
+always_ff @(posedge clk) begin : mailbox_ctl
+    use_hrdata_from_mb <= 0;
+
     if (mb_halt_event) begin
         // store return value
         $fdisplay(ret_val_fd, "%0d", signed'(mem.dmem_hwdata));
@@ -227,14 +234,10 @@ always_ff @(posedge clk) begin : mailbox_ctl_writes
     if (mb_putc_event) begin
         $write("%c", mem.dmem_hwdata[7:0]);
     end
-end
 
-always_comb begin : mailbox_ctl_reads
     if (mb_getc_event) begin
-        // TODO: meta events in always_comb are not a good idea (may trigger multiple times)
-        dmem_hrdata_to_core = $fgetc(STDIN_FD);
-    end else begin
-        dmem_hrdata_to_core = dmem_hrdata_from_mem;
+        dmem_hrdata_from_mb <= $fgetc(STDIN_FD);
+        use_hrdata_from_mb <= 1; // use the mailbox data next cycle
     end
 end
 
