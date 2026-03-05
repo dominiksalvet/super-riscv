@@ -18,10 +18,6 @@
 
 # add numbers in array and compare with reference result
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -39,7 +35,7 @@ next_loop:
     j next_loop
 
 finished:
-    la x5, mb_halt
+    la x5, __mb_halt
     sub x4, x4, x3 # return value
 
 halt_loop:

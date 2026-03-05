@@ -18,10 +18,6 @@
 
 # array sum program optimized for Super RISC-V (also uses loop unrolling)
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -101,7 +97,7 @@ loop_tail:
     add x4, x4, x24
 
 finished:
-    la x5, mb_halt
+    la x5, __mb_halt
     sub x4, x4, x3 # return value
 
 halt_loop:

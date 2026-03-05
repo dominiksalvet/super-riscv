@@ -16,36 +16,20 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-name: Run Tests
-on: [push, pull_request]
+# WARNING: this makefile is not intended to be used by end user
 
-jobs:
-  Testing:
-    runs-on: ubuntu-latest
-    container:
-      image: dominiksalvet/super-riscv-env:v1.1
+LDFLAGS = --defsym=__stack_size=0 --defsym=__heap_size=0 --no-relax-gp
 
-    steps:
-    - name: Checkout commit
-      uses: actions/checkout@v4
+build: $(TEST_BUILD_DIR)/$(TEST_NAME)
 
-    - name: Build design
-      run: make build
+$(TEST_BUILD_DIR):
+	mkdir -p $@
 
-    - name: Run Hello World
-      run: make hello_world
+$(TEST_BUILD_DIR)/%.o: %.s | $(TEST_BUILD_DIR)
+	$(RV_AS) $(RV_ISA_FLAGS) $< -o $@
 
-    - name: Test unknown values
-      run: |
-        make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=0
-        make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=1
+$(TEST_BUILD_DIR)/%: $(TEST_BUILD_DIR)/%.o $(TESTS_DIR)/link.ld
+	$(RV_LD) -m elf32lriscv $(LDFLAGS) -T $(TESTS_DIR)/link.ld $< -nostdlib -o $@
 
-    - name: Compile and run tests
-      run: ./run_tests.sh
-
-    - name: Upload testing report
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: run_tests_report
-        path: out/run_tests.log
+print_test_names:
+	@echo *.s | tr ' ' '\n' | sed 's/\.s$$//'

@@ -18,14 +18,10 @@
 
 # this is a Hello World program for Super RISC-V processor
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
-    la x1, mb_putc
+    la x1, __mb_putc
     la x2, msg
 
 .balign 8
@@ -38,7 +34,7 @@ print_loop:
     j print_loop
 
 print_finished:
-    la x1, mb_halt
+    la x1, __mb_halt
     li x2, 0
 halt_loop:
     sw x2, 0(x1)

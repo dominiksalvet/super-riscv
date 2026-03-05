@@ -19,7 +19,7 @@
 // ACCEPTED ARGUMENTS:
 //   +waves               enable signal values dump
 //   +waves+file=<path>   path of output signal waves file
-//   +max+cycles=<value>  max cycles of simulation
+//   +max+cycles=<value>  max cycles of simulation (0 - no limit)
 //   +test+path=<path>    path to memory image of test
 //   +verilator*          Verilator simulation runtime arguments
 

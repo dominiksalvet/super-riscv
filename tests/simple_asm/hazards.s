@@ -20,10 +20,6 @@
 # processor. It uses x31 to collect any fail codes. If x31 is non-zero at the
 # end of the test, it means the test failed.
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -696,7 +692,7 @@ _start:
     or x31, x31, x10
     or x31, x31, x18
 
-    la x1, mb_halt
+    la x1, __mb_halt
 halt_loop:
     sw x31, 0(x1)
     j halt_loop

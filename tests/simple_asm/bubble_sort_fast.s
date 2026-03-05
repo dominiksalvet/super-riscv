@@ -16,11 +16,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# self-check bubble sort test for RISC-V
-
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
+# self-check bubble sort test optimized for Super RISC-V processor
 
 .section .text
 .global _start
@@ -33,25 +29,28 @@ bubble_sort:
     bge x11, x30, check_sorted
 
     sub x12, x30, x11 # number of to-be-sorted items
-    li x13, 0         # index of current item
+    li x13, 1         # index of compared item
 
+.balign 8
 bubble_step:
-    addi x14, x13, 1 # compared item index
-    blt x14, x12, 1f
+    bge x13, x12, 2f # array bound check
+
+    slli x14, x13, 2
+    add x14, x14, x31 # compared item index
+    addi x13, x13, 1 # next index (no longer required this loop)
+
+    lw x15, -4(x14) # load two numbers
+    lw x16, 0(x14)
+    
+    bge x16, x15, 1f # check if swap
+
+    sw x16, -4(x14)
+    sw x15, 0(x14)
+1:
+    j bubble_step
+2:
     addi x11, x11, 1
     j bubble_sort
-1:
-    slli x15, x13, 2
-    add x15, x15, x31
-    lw x16, 0(x15) # load two numbers
-    lw x17, 4(x15)
-
-    bge x17, x16, 2f # check if swap
-    sw x17, 0(x15)
-    sw x16, 4(x15)
-2:
-    addi x13, x13, 1
-    j bubble_step
 
 check_sorted:
     li x10, 0 # success in default
@@ -60,6 +59,7 @@ check_sorted:
     lw x12, 0(x31) # lower element
     li x11, 1 # higher element index
 
+.balign 8
 sorted_loop:
     bge x11, x30, sorted # single item is sorted
 
@@ -76,7 +76,7 @@ sorted_loop:
 not_sorted:
     li x10, 1
 sorted:
-    la x11, mb_halt
+    la x11, __mb_halt
 halt_loop:
     sw x10, 0(x11)
     j halt_loop

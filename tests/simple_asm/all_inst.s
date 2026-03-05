@@ -23,10 +23,6 @@
 .option push
 .option arch, -c
 
-.section .mailbox, "aw", @nobits
-mb_halt: .word 0
-mb_putc: .word 0
-
 .section .text
 .global _start
 _start:
@@ -330,7 +326,7 @@ add_x16_x19:
 .endr
 
     # end of test (x1 collects fail flags)
-    la x2, mb_halt
+    la x2, __mb_halt
 halt_loop:
     sw x1, 0(x2)
     j halt_loop
