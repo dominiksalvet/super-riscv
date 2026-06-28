@@ -19,7 +19,7 @@
 # WARNING: this makefile is not intended to be used by end user
 
 # EXTRA_CFLAGS = -g
-CFLAGS = $(RV_ISA_FLAGS) $(EXTRA_CFLAGS)
+CFLAGS = $(RV_GCC_FLAGS) $(EXTRA_CFLAGS)
 LDFLAGS = -Wl,--defsym=__heap_size=0
 
 build: $(TEST_BUILD_DIR)/$(TEST_NAME)

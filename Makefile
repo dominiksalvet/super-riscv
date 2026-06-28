@@ -51,14 +51,14 @@ RV_OBJCOPY = riscv64-unknown-elf-objcopy
 RV_OBJDUMP = riscv64-unknown-elf-objdump
 RV_READELF = riscv64-unknown-elf-readelf
 RV_SIZE = riscv64-unknown-elf-size
-RV_ISA_FLAGS = -march=rv32i -mabi=ilp32
 
+RV_GCC_FLAGS = -march=rv32i -mabi=ilp32 -mstrict-align
 # RV_OBJDUMP_FLAGS = -M numeric,no-aliases
 # RV_OBJDUMP_FLAGS = --source -l
 
 # Newlib standard C library
 NEWLIB_INCLUDE ?= /opt/newlib/riscv64-unknown-elf/include
-NEWLIB_LIB ?= /opt/newlib/riscv64-unknown-elf/lib/rv32i/ilp32
+NEWLIB_LIB ?= /opt/newlib/riscv64-unknown-elf/lib
 
 SRC_FILES = $(RTL_DIR)/pkg/riscv_types_pkg.sv\
             $(RTL_DIR)/pkg/srv_types_pkg.sv\
@@ -121,7 +121,7 @@ TEST_BUILD_ARGS = \
     RV_AS=$(RV_AS) \
     RV_LD=$(RV_LD) \
     RV_GCC=$(RV_GCC) \
-    RV_ISA_FLAGS='$(RV_ISA_FLAGS)' \
+    RV_GCC_FLAGS='$(RV_GCC_FLAGS)' \
     NEWLIB_INCLUDE=$(NEWLIB_INCLUDE) \
     NEWLIB_LIB=$(NEWLIB_LIB) \
     TESTS_DIR=$(abspath $(TESTS_DIR)) \
