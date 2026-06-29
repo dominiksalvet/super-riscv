@@ -93,6 +93,7 @@ alu_s1_mux_t i0_alu_s1_sel, i1_alu_s1_sel;
 alu_s2_mux_t i0_alu_s2_sel, i1_alu_s2_sel;
 alu_opcode_t i0_alu_opc,    i1_alu_opc;
 agu_s1_mux_t i0_agu_s1_sel, i1_agu_s1_sel;
+agu_opcode_t i0_agu_opc,    i1_agu_opc;
 logic [3:0]  i0_extra_opc,  i1_extra_opc;
 
 inst_dec i0_inst_dec (
@@ -106,6 +107,7 @@ inst_dec i0_inst_dec (
     .alu_s2_sel(i0_alu_s2_sel),
     .alu_opc(i0_alu_opc),
     .agu_s1_sel(i0_agu_s1_sel),
+    .agu_opc(i0_agu_opc),
     .extra_opc(i0_extra_opc)
 );
 
@@ -120,6 +122,7 @@ inst_dec i1_inst_dec (
     .alu_s2_sel(i1_alu_s2_sel),
     .alu_opc(i1_alu_opc),
     .agu_s1_sel(i1_agu_s1_sel),
+    .agu_opc(i1_agu_opc),
     .extra_opc(i1_extra_opc)
 );
 
@@ -196,10 +199,10 @@ assign dec_ready = i0_ready && i1_ready;
 // prepare decoded output signals
 assign dec_i0_valid = r_inst_p.i0_valid && i0_ready;
 assign dec_i0_en_p = i0_en_p;
-assign dec_i0_exec_p = '{i0_rs1_val, i0_rs2_val, i0_imm, i0_alu_s1_sel, i0_alu_s2_sel, i0_alu_opc, i0_agu_s1_sel, i0_extra_opc, i0_rd_addr};
+assign dec_i0_exec_p = '{i0_rs1_val, i0_rs2_val, i0_imm, i0_alu_s1_sel, i0_alu_s2_sel, i0_alu_opc, i0_agu_s1_sel, i0_agu_opc, i0_extra_opc, i0_rd_addr};
 assign dec_i1_valid = r_inst_p.i1_valid && i1_ready && i0_ready; // i1 must not execute first
 assign dec_i1_en_p = i1_en_p;
-assign dec_i1_exec_p = '{i1_rs1_val, i1_rs2_val, i1_imm, i1_alu_s1_sel, i1_alu_s2_sel, i1_alu_opc, i1_agu_s1_sel, i1_extra_opc, i1_rd_addr};
+assign dec_i1_exec_p = '{i1_rs1_val, i1_rs2_val, i1_imm, i1_alu_s1_sel, i1_alu_s2_sel, i1_alu_opc, i1_agu_s1_sel, i1_agu_opc, i1_extra_opc, i1_rd_addr};
 assign dec_pc_val = r_inst_p.addr;
 
 `ifdef EXEC_TRACE_SUPPORT

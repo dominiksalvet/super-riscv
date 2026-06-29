@@ -59,11 +59,6 @@ typedef enum {
     ALU_S2_4 // value 4
 } alu_s2_mux_t;
 
-typedef enum {
-    AGU_S1_RS1,
-    AGU_S1_PC
-} agu_s1_mux_t;
-
 typedef enum logic [3:0] {
     ALU_ADD =   {1'b0, FN3_ADD_SUB},
     ALU_SUB =   {1'b1, FN3_ADD_SUB},
@@ -76,6 +71,16 @@ typedef enum logic [3:0] {
     ALU_OR =    {1'b0, FN3_OR},
     ALU_AND =   {1'b0, FN3_AND}
 } alu_opcode_t;
+
+typedef enum {
+    AGU_S1_RS1,
+    AGU_S1_PC
+} agu_s1_mux_t;
+
+typedef enum {
+    AGU_ADD,
+    AGU_JALR_ADD
+} agu_opcode_t;
 
 // describes instruction and its resources
 typedef struct packed {
@@ -99,6 +104,7 @@ typedef struct packed {
     alu_s2_mux_t alu_s2_sel;
     alu_opcode_t alu_opc;
     agu_s1_mux_t agu_s1_sel;
+    agu_opcode_t agu_opc;
     logic [3:0]  extra_opc; // described in inst_dec
     logic [4:0]  rd_addr;
 } exec_pkt_t;
