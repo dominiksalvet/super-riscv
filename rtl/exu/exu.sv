@@ -192,6 +192,7 @@ always_comb begin : forward_values
         FWD_WB_I1:  i0_final_rs1_val = r_wb_i1_rd_val;
         FWD_WB_I0:  i0_final_rs1_val = r_wb_i0_rd_val;
         FWD_NONE:   i0_final_rs1_val = r_i0_exec_p.rs1_val;
+        default:    i0_final_rs1_val = 'x;
     endcase
 
     case (r_i0_rs2_fwd_src)
@@ -202,6 +203,7 @@ always_comb begin : forward_values
         FWD_WB_I1:  i0_final_rs2_val = r_wb_i1_rd_val;
         FWD_WB_I0:  i0_final_rs2_val = r_wb_i0_rd_val;
         FWD_NONE:   i0_final_rs2_val = r_i0_exec_p.rs2_val;
+        default:    i0_final_rs2_val = 'x;
     endcase
 
     case (r_i1_rs1_fwd_src)
@@ -212,6 +214,7 @@ always_comb begin : forward_values
         FWD_WB_I1:  i1_final_rs1_val = r_wb_i1_rd_val;
         FWD_WB_I0:  i1_final_rs1_val = r_wb_i0_rd_val;
         FWD_NONE:   i1_final_rs1_val = r_i1_exec_p.rs1_val;
+        default:    i1_final_rs1_val = 'x;
     endcase
 
     case (r_i1_rs2_fwd_src)
@@ -222,6 +225,7 @@ always_comb begin : forward_values
         FWD_WB_I1:  i1_final_rs2_val = r_wb_i1_rd_val;
         FWD_WB_I0:  i1_final_rs2_val = r_wb_i0_rd_val;
         FWD_NONE:   i1_final_rs2_val = r_i1_exec_p.rs2_val;
+        default:    i1_final_rs2_val = 'x;
     endcase
 end
 
@@ -236,24 +240,28 @@ always_comb begin : set_alu_operands
         ALU_S1_RS1: i0_alu_s1 = i0_final_rs1_val;
         ALU_S1_PC:  i0_alu_s1 = i0_pc_val;
         ALU_S1_0:   i0_alu_s1 = 32'b0;
+        default:    i0_alu_s1 = 'x;
     endcase
 
     case (r_i0_exec_p.alu_s2_sel)
         ALU_S2_RS2: i0_alu_s2 = i0_final_rs2_val;
         ALU_S2_IMM: i0_alu_s2 = r_i0_exec_p.imm;
         ALU_S2_4:   i0_alu_s2 = 32'd4;
+        default:    i0_alu_s2 = 'x;
     endcase
 
     case (r_i1_exec_p.alu_s1_sel)
         ALU_S1_RS1: i1_alu_s1 = i1_final_rs1_val;
         ALU_S1_PC:  i1_alu_s1 = i1_pc_val;
         ALU_S1_0:   i1_alu_s1 = 32'b0;
+        default:    i1_alu_s1 = 'x;
     endcase
 
     case (r_i1_exec_p.alu_s2_sel)
         ALU_S2_RS2: i1_alu_s2 = i1_final_rs2_val;
         ALU_S2_IMM: i1_alu_s2 = r_i1_exec_p.imm;
         ALU_S2_4:   i1_alu_s2 = 32'd4;
+        default:    i1_alu_s2 = 'x;
     endcase
 end
 
@@ -300,13 +308,11 @@ always_comb begin : agu_compute
     case (r_i0_exec_p.agu_opc)
         AGU_ADD:      i0_agu_res = i0_agu_add_res;
         AGU_JALR_ADD: i0_agu_res = {i0_agu_add_res[31:1], 1'b0};
-        default:      i0_agu_res = 'x;
     endcase
 
     case (r_i1_exec_p.agu_opc)
         AGU_ADD:      i1_agu_res = i1_agu_add_res;
         AGU_JALR_ADD: i1_agu_res = {i1_agu_add_res[31:1], 1'b0};
-        default:      i1_agu_res = 'x;
     endcase
 end
 

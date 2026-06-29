@@ -37,7 +37,7 @@ typedef struct packed {
     logic [4:0] i1_addr;
 } fwd_pkt_t;
 
-typedef enum {
+typedef enum logic [2:0] {
     FWD_EX2_I1,
     FWD_EX2_I0,
     FWD_EX3_I1,
@@ -47,13 +47,13 @@ typedef enum {
     FWD_NONE
 } fwd_src_t;
 
-typedef enum {
+typedef enum logic [1:0] {
     ALU_S1_RS1,
     ALU_S1_PC,
     ALU_S1_0 // value 0
 } alu_s1_mux_t;
 
-typedef enum {
+typedef enum logic [1:0] {
     ALU_S2_RS2,
     ALU_S2_IMM,
     ALU_S2_4 // value 4
@@ -72,12 +72,12 @@ typedef enum logic [3:0] {
     ALU_AND =   {1'b0, FN3_AND}
 } alu_opcode_t;
 
-typedef enum {
+typedef enum logic {
     AGU_S1_RS1,
     AGU_S1_PC
 } agu_s1_mux_t;
 
-typedef enum {
+typedef enum logic {
     AGU_ADD,
     AGU_JALR_ADD
 } agu_opcode_t;
@@ -119,7 +119,7 @@ typedef struct packed {
 } res_pkt_t; // result packet
 
 // pipe in which instruction should be executed
-typedef enum {
+typedef enum logic {
     PIPE_EXU,
     PIPE_LSU
 } exec_pipe_t;
