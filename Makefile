@@ -128,6 +128,10 @@ TEST_BUILD_ARGS = \
     TEST_BUILD_DIR=$(abspath $(TEST_BUILD_DIR)) \
     TEST_NAME=$(TEST_NAME)
 
+################################################################################
+#                            RTL simulator build                               #
+################################################################################
+
 # lint and transform RTL to C++ in default (quick check)
 verilate: $(BUILD_DIR)_verilated
 build: $(BUILD_DIR)/$(TOP_CLASS)
@@ -148,9 +152,17 @@ $(BUILD_DIR)_verilated: $(SRC_FILES) | $(BUILD_DIR)
 $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 	$(MAKE) -j -C $(BUILD_DIR) -f $(TOP_CLASS).mk
 
+################################################################################
+#                            Quick start example                               #
+################################################################################
+
 # this target uses a precompiled program and ignores user macros
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex +ret+val+file=$(OUT_DIR)/ret_val.txt
+
+################################################################################
+#                          Tests compilation, etc.                             #
+################################################################################
 
 # this rule must be executed even when target exists
 FORCE:
@@ -168,6 +180,10 @@ $(TEST_PREFIX).dis: $(TEST_PREFIX)
 $(TEST_PREFIX)_info.txt: $(TEST_PREFIX)
 	$(RV_READELF) -a $< > $@.tmp
 	mv $@.tmp $@
+
+################################################################################
+#                            Running CPU simulation                            #
+################################################################################
 
 # compose simulation rules
 SIM_PREREQ := $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
@@ -195,6 +211,10 @@ debug: $(DEBUG_PREREQ) | $(SIM_OUT_DIR)
 	rm -f $(RET_VAL_FILE)
 	-$(EXEC_RECIPE) +waves +waves+file=$(WAVES_FILE) +trace +trace+file=$(TRACE_FILE)
 	test -f $(RET_VAL_FILE)
+
+################################################################################
+#                             Other useful targets                             #
+################################################################################
 
 open_waves:
 	@test -f $(WAVES_FILE) || { echo "First use 'debug' target to generate '$(WAVES_FILE)' file."; false; }
