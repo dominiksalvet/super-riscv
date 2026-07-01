@@ -115,6 +115,10 @@ TEST_NAME ?= hello_world
 SIM_OUT_DIR ?= $(OUT_DIR)
 X_VAL ?= 0
 
+ifeq ($(filter $(X_VAL),0 1 2),)
+    $(error X_VAL must be 0, 1, or 2 (got '$(X_VAL)'))
+endif
+
 TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
 TEST_PREFIX = $(TEST_BUILD_DIR)/$(TEST_NAME)
 RET_VAL_FILE = $(SIM_OUT_DIR)/ret_val.txt
