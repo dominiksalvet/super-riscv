@@ -43,7 +43,7 @@ ACCEPTED MACROS:
     SEED=<value>          seed used for any randomized event
     INPUT_IN_FILE=1       use input file of respective test as stdin
                           e.g., TEST_NAME=foo -> stdin=foo_input.txt
-                          if not existing, empty file is used instead
+                          if not existing, empty input is used instead
 endef
 
 RTL_DIR = rtl
@@ -129,6 +129,7 @@ endif
 BUILD_DIR = $(BUILDS_DIR)/xassign$(X_ASSIGN)
 TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
 TEST_PREFIX = $(TEST_BUILD_DIR)/$(TEST_NAME)
+TEST_INPUT_FILE = $(TESTS_DIR)/$(TEST_GROUP)/$(TEST_NAME)_input.txt
 RET_VAL_FILE = $(SIM_OUT_DIR)/ret_val.txt
 WAVES_FILE = $(SIM_OUT_DIR)/waves.fst
 TRACE_FILE = $(SIM_OUT_DIR)/trace.log
@@ -224,13 +225,14 @@ SIM_PREREQ := $(BUILD_DIR)/$(TOP_CLASS) $(TEST_PREFIX).hex
 DEBUG_PREREQ := $(SIM_PREREQ) $(TEST_PREFIX) $(TEST_PREFIX).dis $(TEST_PREFIX)_info.txt
 EXEC_RECIPE := ./$(BUILD_DIR)/$(TOP_CLASS) $(EXEC_FLAGS)
 ifeq ($(INPUT_IN_FILE), 1)
-    SIM_PREREQ += $(OUT_TESTS_DIR)/input_copy.txt
-    DEBUG_PREREQ += $(OUT_TESTS_DIR)/input_copy.txt
-    EXEC_RECIPE += < $(OUT_TESTS_DIR)/input_copy.txt
+    ifneq ($(wildcard $(TEST_INPUT_FILE)),)
+        SIM_PREREQ += $(TEST_INPUT_FILE)
+        DEBUG_PREREQ += $(TEST_INPUT_FILE)
+        EXEC_RECIPE += < $(TEST_INPUT_FILE)
+    else
+        EXEC_RECIPE += < /dev/null
+    endif
 endif
-
-$(OUT_TESTS_DIR)/input_copy.txt: FORCE
-	cp $(TESTS_DIR)/$(TEST_GROUP)/$(TEST_NAME)_input.txt $@ 2>/dev/null || true > $@
 
 $(SIM_OUT_DIR):
 	mkdir -p $@
