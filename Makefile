@@ -53,7 +53,7 @@ UTILS_DIR = utils
 
 # out directory is used for generated files
 OUT_DIR = out
-BUILD_DIR = $(OUT_DIR)/build
+BUILDS_DIR = $(OUT_DIR)/builds
 OUT_TESTS_DIR = $(OUT_DIR)/tests
 
 # TODO: consider support for other simulators (free, student editions, ...)
@@ -120,6 +120,13 @@ ifeq ($(filter $(X_VAL),0 1 2),)
     $(error X_VAL must be 0, 1, or 2 (got '$(X_VAL)'))
 endif
 
+ifeq ($(X_VAL), 2)
+    X_ASSIGN = unique
+else
+    X_ASSIGN = $(X_VAL)
+endif
+
+BUILD_DIR = $(BUILDS_DIR)/xassign$(X_ASSIGN)
 TEST_BUILD_DIR = $(OUT_TESTS_DIR)/$(TEST_GROUP)
 TEST_PREFIX = $(TEST_BUILD_DIR)/$(TEST_NAME)
 RET_VAL_FILE = $(SIM_OUT_DIR)/ret_val.txt
@@ -168,7 +175,7 @@ $(BUILD_DIR)_verilated: $(SRC_FILES) | $(BUILD_DIR)
 	$(VERILATOR) --cc --exe -Wall -Wno-fatal --top-module $(TOP_MODULE)\
           --assert\
           --trace-fst --trace-structs\
-          --x-assign unique --x-initial unique\
+          --x-assign $(X_ASSIGN) --x-initial unique\
           -Mdir $(BUILD_DIR)\
           -DEXEC_TRACE_SUPPORT\
           $^ $(CPP_WRAPPER)
@@ -181,7 +188,7 @@ $(BUILD_DIR)/$(TOP_CLASS): $(CPP_WRAPPER) $(BUILD_DIR)_verilated
 #                            Quick start example                               #
 ################################################################################
 
-# this target uses a precompiled program and ignores user macros
+# this target uses a precompiled program and ignores most user macros
 hello_world: $(BUILD_DIR)/$(TOP_CLASS) $(UTILS_DIR)/hello_world.hex
 	./$< +verilator+noassert +verilator+rand+reset+0 +test+path=$(UTILS_DIR)/hello_world.hex +ret+val+file=$(OUT_DIR)/ret_val.txt
 
