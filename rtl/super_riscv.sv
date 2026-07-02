@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024-2025 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 
 // TODO: use asynchronous low active reset
 module super_riscv // Super RISC-V top module
-    import srv_defs::*;
+    import srv_types_pkg::*;
+    import exec_trace_pkg::*;
 (
     input logic        clk,
     input logic        rst,
@@ -65,6 +66,10 @@ exec_pkt_t   dec_i0_exec_p,      dec_i1_exec_p;
 fwd_src_t    dec_i0_rs1_fwd_src, dec_i1_rs1_fwd_src;
 fwd_src_t    dec_i0_rs2_fwd_src, dec_i1_rs2_fwd_src;
 logic [31:0] dec_pc_val;
+
+`ifdef EXEC_TRACE_SUPPORT
+    trace_pkt_t dec_i0_trace_p, dec_i1_trace_p;
+`endif
 
 dec dec0 (.*);
 

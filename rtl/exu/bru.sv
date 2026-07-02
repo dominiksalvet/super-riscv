@@ -17,7 +17,7 @@
 */
 
 module bru // branch unit
-    import riscv_defs::*;
+    import riscv_types_pkg::*;
 (
     input logic        i0_valid, // i0 uses BRU
     input logic [3:0]  i0_opc, // branch opcode

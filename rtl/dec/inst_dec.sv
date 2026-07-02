@@ -17,8 +17,8 @@
 */
 
 module inst_dec // instruction decoder
-    import riscv_defs::*;
-    import srv_defs::*;
+    import riscv_types_pkg::*;
+    import srv_types_pkg::*;
 (
     input logic [31:0] inst,
 
@@ -33,13 +33,14 @@ module inst_dec // instruction decoder
     output alu_s2_mux_t alu_s2_sel,
     output alu_opcode_t alu_opc,
     output agu_s1_mux_t agu_s1_sel,
+    output agu_opcode_t agu_opc,
     output logic [3:0]  extra_opc // reuse funct3 as much as possible
 );
 
 // instructions fields
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
 logic [6:0] funct7;
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 logic [4:0] rs2;
 logic [4:0] rs1;
 logic [2:0] funct3;
@@ -130,6 +131,12 @@ always_comb begin : agu_ctl
         OPC_JALR, OPC_LOAD, OPC_STORE: agu_s1_sel = AGU_S1_RS1;
         OPC_JAL, OPC_BRANCH:           agu_s1_sel = AGU_S1_PC;
         default:                       agu_s1_sel = agu_s1_mux_t'('x);
+    endcase
+
+    case (opcode)
+        OPC_LOAD, OPC_STORE, OPC_JAL, OPC_BRANCH: agu_opc = AGU_ADD;
+        OPC_JALR:                                 agu_opc = AGU_JALR_ADD;
+        default:                                  agu_opc = agu_opcode_t'('x);
     endcase
 end
 

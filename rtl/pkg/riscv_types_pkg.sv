@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-package riscv_defs;
+package riscv_types_pkg; // RISC-V ISA related data types
 
 typedef enum logic [6:0] {
     OPC_OP_IMM =    7'b0010011,
@@ -56,7 +56,14 @@ typedef enum logic [2:0] {
 } store_fn3_t;
 
 typedef enum logic [2:0] {
-    FN3_SRL_SRA = 3'b101
+    FN3_ADD_SUB =  3'b000,
+    FN3_SLL =      3'b001,
+    FN3_SLT =      3'b010,
+    FN3_SLTU =     3'b011,
+    FN3_XOR =      3'b100,
+    FN3_SRL_SRA =  3'b101,
+    FN3_OR =       3'b110,
+    FN3_AND =      3'b111
 } arith_fn3_t;
 
 endpackage

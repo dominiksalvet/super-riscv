@@ -17,7 +17,7 @@
 */
 
 module alu // arithmetic logic unit
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic [31:0] s1,
     input logic [31:0] s2,

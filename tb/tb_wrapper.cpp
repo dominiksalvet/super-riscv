@@ -1,6 +1,6 @@
 /*
     Super RISC-V - superscalar dual-issue RISC-V processor
-    Copyright (C) 2024 Dominik Salvet
+    Copyright (C) 2024-2026 Dominik Salvet
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,11 +17,14 @@
 */
 
 // ACCEPTED ARGUMENTS:
-//   +waves               enable signal values dump
-//   +waves+file=<path>   path of output signal waves file
-//   +max+cycles=<value>  max cycles of simulation (0 - no limit)
-//   +test+path=<path>    path to memory image of test
-//   +verilator*          Verilator simulation runtime arguments
+//   +waves                enable signal values dump
+//   +waves+file=<path>    path of output signal waves file
+//   +trace                enable processor execution tracing
+//   +trace+file=<path>    processor execution trace output file
+//   +ret+val+file=<path>  file with return value of simulated test
+//   +max+cycles=<value>   max cycles of simulation (0 - no limit)
+//   +test+path=<path>     path to memory image of test
+//   +verilator*           Verilator simulation runtime arguments
 
 #include <iostream>
 #include <string>
@@ -45,6 +48,8 @@ double sc_time_stamp() {
 
 int main(int argc, char** argv)
 {
+    std::cout << "[SIM_START]" << std::endl;
+
     bool waves = false;
     string waves_path = "waves.fst";
 
@@ -104,7 +109,7 @@ int main(int argc, char** argv)
         tb->eval();
     }
 
-    // TODO: call these even on $fatal or assertions
+    // TODO: call this even on $fatal (both implicit and explicit)
     tb->final(); // call final blocks
 
     if (waves)
@@ -112,6 +117,8 @@ int main(int argc, char** argv)
         tfp->dump(time_stamp);
         tfp->close();
     }
+
+    std::cout << "[SIM_END]" << std::endl;
 
     return 0;
 }

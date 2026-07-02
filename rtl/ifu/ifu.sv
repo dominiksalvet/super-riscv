@@ -18,7 +18,7 @@
 
 // TODO: add full support for AHB-Lite
 module ifu // instruction fetch unit
-    import srv_defs::*;
+    import srv_types_pkg::*;
 (
     input logic        clk,
     input logic        rst,
@@ -41,10 +41,10 @@ module ifu // instruction fetch unit
     output logic        imem_hwrite,
 
     input logic [63:0]  imem_hrdata,
-// verilator lint_off UNUSED
+// verilator lint_off UNUSEDSIGNAL
     input logic         imem_hready,
     input logic         imem_hresp
-// verilator lint_on UNUSED
+// verilator lint_on UNUSEDSIGNAL
 );
 
 logic        r_no_fetch;
