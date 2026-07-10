@@ -28,6 +28,8 @@ SUPPORTED TARGETS:
     build_test            compile RISC-V program
     hello_world           QUICK START - compile processor and run precompiled
                           hello world example
+    print_test_groups     print supported TEST_GROUP values
+    print_test_names      for given TEST_GROUP, print supported TEST_NAME values
     clean                 clean all generated files
     clean_tests           clean all generated files of tests (RISC-V programs)
     help                  display this help
@@ -98,13 +100,6 @@ TOP_MODULE = tb
 # wrapper is used by verilator-generated makefile (hence absolute path)
 CPP_WRAPPER = $(abspath $(TB_DIR)/$(TOP_MODULE)_wrapper.cpp)
 TOP_CLASS = V$(TOP_MODULE)
-
-# TODO: start testing using third-party test suites
-# TODO: add support for popular benchmarks
-# supported test group names
-TEST_GROUPS = simple_asm\
-              simple_c\
-              simple_libc
 
 ################################################################################
 #                         Process user-defined macros                          #
@@ -256,8 +251,11 @@ open_waves:
 	@test -f $(WAVES_FILE) || { echo "First use 'debug' target to generate '$(WAVES_FILE)' file."; false; }
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
 
+# TODO: start testing using third-party test suites
+# TODO: add support for popular benchmarks
+# supported test group names
 print_test_groups:
-	@echo $(TEST_GROUPS) | tr ' ' '\n'
+	@find $(TESTS_DIR) -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
 
 print_test_names:
 	@$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) --no-print-directory $@
