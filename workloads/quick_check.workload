@@ -1,9 +1,33 @@
 0 verilate
 1 build
-2 sim TEST_GROUP=simple_asm TEST_NAME=all_inst ASSERTS=1 INPUT_IN_FILE=1
+2 build_test TEST_GROUP=simple_asm TEST_NAME=hello_world
+2 build_test TEST_GROUP=simple_c TEST_NAME=hello_world
+2 build_test TEST_GROUP=simple_libc TEST_NAME=hello_world
+3 sim TEST_GROUP=simple_asm TEST_NAME=all_inst ASSERTS=1 INPUT_IN_FILE=1
 3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum ASSERTS=1 INPUT_IN_FILE=1
 3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum_fast ASSERTS=1 INPUT_IN_FILE=1
 3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort ASSERTS=1 INPUT_IN_FILE=1
 3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort_fast ASSERTS=1 INPUT_IN_FILE=1
-4 sim TEST_GROUP=simple_libc TEST_NAME=line_parser ASSERTS=1 INPUT_IN_FILE=1
-4 sim TEST_GROUP=simple_libc ASSERTS=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=fib_seq ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=fib_seq_fast ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=halt ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=hazards ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=array_sum ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=bss_test ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=bubble_sort ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=double_arith ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=fact_seq ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=fib_rec ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=fib_seq ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=float_arith ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=pointers ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=prime_nums ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=return0 ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_c TEST_NAME=series ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_libc TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_libc TEST_NAME=line_parser ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_libc TEST_NAME=linked_list ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_libc TEST_NAME=side_angle_side ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_libc TEST_NAME=stdin_test ASSERTS=1 INPUT_IN_FILE=1

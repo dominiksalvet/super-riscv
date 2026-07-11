@@ -29,23 +29,21 @@ jobs:
     - name: Checkout commit
       uses: actions/checkout@v4
 
+    - name: Verilate design
+      run: make verilate
+
     - name: Build design
       run: make build
 
     - name: Run Hello World
       run: make hello_world
 
-    - name: Test unknown values
-      run: |
-        make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=0
-        make sim ASSERTS=1 TEST_NAME=all_inst X_VAL=1
+    - name: Run testing workload
+      run: ./run_workload.sh ci_testing
 
-    - name: Compile and run tests
-      run: ./run_tests.sh
-
-    - name: Upload testing report
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: run_tests_report
-        path: out/run_tests.log
+    # - name: Upload testing report
+    #   uses: actions/upload-artifact@v4
+    #   if: always()
+    #   with:
+    #     name: run_tests_report
+    #     path: out/run_tests.log
