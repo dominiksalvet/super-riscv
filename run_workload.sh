@@ -18,12 +18,19 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+# This is a universal workload runner created for Super RISC-V processor needs.
+# It uses the delivered Makefile hierarchical build system and 'workload' files
+# describing individual steps and parallel execution opportunities. It is mainly
+# intended for processor testing.
+
 set -e
 
 # $1 - workload name (optional)
 init_env() {
     OUT_DIR="$(make api_get_out_dir)"
     readonly OUT_DIR
+    # TODO: rename to out/workoads/quick_check/1/ret_val.txt?
+    readonly SIM_DIR="$OUT_DIR/sim"
     readonly WORKLOADS_DIR=workloads
 
     # global variables
@@ -34,14 +41,16 @@ init_env() {
 # $1 - parallel group
 # $@ - make commands
 execute_group() {
-    echo "Executing group $1"
-
-    local group="$1"
+    echo "Executing group $1 ..."
     shift
-    local -a cmds=("$@")
 
-    for cmd in "${cmds[@]}"; do
-        echo "make $cmd"
+    local cmd_line
+    local -a cmd_array
+
+    # TODO: make this parallel
+    for cmd_line in "$@"; do
+        read -r -a cmd_array <<< "$cmd_line"
+        make "${cmd_array[@]}" > /dev/null
     done
 }
 
@@ -51,30 +60,33 @@ main() {
 
     echo "Running workload $workload_name ..."
 
-    local lineno=0
     local cur_group="" # current parallel group
-    local -a cur_cmds=() # make commands to be executed in parallel
+    local -a group_cmds=() # make commands to be executed in parallel
 
-    while IFS= read -r line || [ "$line" ]; do
+    local lineno=0
+    local line_group
+    local line_cmd
+
+    while IFS=' ' read -r line_group line_cmd || [ "$line_group" ] || [ "$line_cmd" ]; do
         ((++lineno))
 
-        local line_group="${line%% *}"
-        local line_cmd="${line#* }"
-
-        if [ "$line_group" = "$line_cmd" ] || [ -z "$line_group" ] || [ -z "$line_cmd" ]; then
+        if [[ -z "$line_group" || -z "$line_cmd" ]]; then
             echo "ERROR: ${workload_path}:${lineno}: invalid line" >&2
             return 1
         fi
 
+        # create unique simulation output directory for each simulation run
+        line_cmd+=" SIM_OUT_DIR=${SIM_DIR}/$lineno"
+
         if [ "$cur_group" = "$line_group" ]; then
-            cur_cmds+=("$line_cmd")
+            group_cmds+=("$line_cmd")
         else
             if (( lineno != 1 )); then
-                execute_group "$cur_group" "${cur_cmds[@]}"
+                execute_group "$cur_group" "${group_cmds[@]}"
             fi
 
             cur_group="$line_group"
-            cur_cmds=("$line_cmd")
+            group_cmds=("$line_cmd")
         fi
     done < "$workload_path"
 
@@ -82,7 +94,7 @@ main() {
         echo "ERROR: $workload_path is empty" >&2
         return 1
     else
-        execute_group "$cur_group" "${cur_cmds[@]}"
+        execute_group "$cur_group" "${group_cmds[@]}"
     fi
 }
 
