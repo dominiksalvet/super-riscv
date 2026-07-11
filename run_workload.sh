@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #
 #   Super RISC-V - superscalar dual-issue RISC-V processor
@@ -18,65 +18,71 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+set -e
+
 # $1 - workload name (optional)
 init_env() {
-    OUT_DIR="$(make api_get_out_dir)" &&
-    readonly OUT_DIR &&
-    readonly WORKLOADS_DIR=workloads &&
+    OUT_DIR="$(make api_get_out_dir)"
+    readonly OUT_DIR
+    readonly WORKLOADS_DIR=workloads
 
     # global variables
-    workload_name="${1:-quick_check}" &&
+    workload_name="${1:-quick_check}"
     workload_path="$WORKLOADS_DIR/${workload_name}.workload"
 }
 
 # $1 - parallel group
-# $2 - make arguments
-execute_group() (
+# $@ - make commands
+execute_group() {
     echo "Executing group $1"
 
-    echo "$2" | while IFS= read -r line; do
-        echo "make $line"
+    local group="$1"
+    shift
+    local -a cmds=("$@")
+
+    for cmd in "${cmds[@]}"; do
+        echo "make $cmd"
     done
-)
+}
 
 main() {
     echo 'Initializing execution environment ...'
-    init_env "$1" || return
+    init_env "$1"
 
     echo "Running workload $workload_name ..."
 
-    lineno=0
-    cur_group= # current parallel group
-    cur_cmds= # make commands to be executed in parallel
-    while IFS= read -r line || [ "$line" ]; do
-        lineno=$((lineno + 1))
+    local lineno=0
+    local cur_group="" # current parallel group
+    local -a cur_cmds=() # make commands to be executed in parallel
 
-        line_group="${line%% *}"
-        line_cmd="${line#* }"
+    while IFS= read -r line || [ "$line" ]; do
+        ((++lineno))
+
+        local line_group="${line%% *}"
+        local line_cmd="${line#* }"
 
         if [ "$line_group" = "$line_cmd" ] || [ -z "$line_group" ] || [ -z "$line_cmd" ]; then
-            echo "ERROR: ${workload_path}:${lineno}: invalid line"
+            echo "ERROR: ${workload_path}:${lineno}: invalid line" >&2
             return 1
         fi
 
         if [ "$cur_group" = "$line_group" ]; then
-            cur_cmds="$cur_cmds
-$line_cmd"
+            cur_cmds+=("$line_cmd")
         else
-            if [ "$lineno" -ne 1 ]; then
-                execute_group "$cur_group" "$cur_cmds"
+            if (( lineno != 1 )); then
+                execute_group "$cur_group" "${cur_cmds[@]}"
             fi
 
             cur_group="$line_group"
-            cur_cmds="$line_cmd"
+            cur_cmds=("$line_cmd")
         fi
-    done < "$workload_path" || return
+    done < "$workload_path"
 
-    if [ "$lineno" -eq 0 ]; then
-        echo "ERROR: $workload_path is empty"
+    if (( lineno == 0 )); then
+        echo "ERROR: $workload_path is empty" >&2
         return 1
     else
-        execute_group "$cur_group" "$cur_cmds"
+        execute_group "$cur_group" "${cur_cmds[@]}"
     fi
 }
 
