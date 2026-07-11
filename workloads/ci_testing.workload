@@ -1,0 +1,4 @@
+0 verilate
+1 build X_VAL=0
+1 build X_VAL=1
+1 build X_VAL=2

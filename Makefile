@@ -269,3 +269,11 @@ clean_tests:
 help:
 	$(info $(HELP_MSG))
 	@true
+
+################################################################################
+#                             API for other tools                              #
+################################################################################
+
+# exposing useful constants keeps the Makefile centralized
+api_get_out_dir:
+	@echo $(OUT_DIR)

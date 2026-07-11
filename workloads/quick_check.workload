@@ -1,0 +1,9 @@
+0 verilate
+1 build
+2 sim TEST_GROUP=simple_asm TEST_NAME=all_inst ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum_fast ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort ASSERTS=1 INPUT_IN_FILE=1
+3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort_fast ASSERTS=1 INPUT_IN_FILE=1
+4 sim TEST_GROUP=simple_libc TEST_NAME=line_parser ASSERTS=1 INPUT_IN_FILE=1
+4 sim TEST_GROUP=simple_libc ASSERTS=1
