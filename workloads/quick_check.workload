@@ -1,33 +1,58 @@
-0 verilate
-1 build
-2 build_test TEST_GROUP=simple_asm TEST_NAME=hello_world
-2 build_test TEST_GROUP=simple_c TEST_NAME=hello_world
-2 build_test TEST_GROUP=simple_libc TEST_NAME=hello_world
-3 sim TEST_GROUP=simple_asm TEST_NAME=all_inst ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=array_sum_fast ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort_fast ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=fib_seq ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=fib_seq_fast ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=halt ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=hazards ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_asm TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=array_sum ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=bss_test ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=bubble_sort ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=double_arith ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=fact_seq ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=fib_rec ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=fib_seq ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=float_arith ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=pointers ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=prime_nums ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=return0 ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_c TEST_NAME=series ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_libc TEST_NAME=hello_world ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_libc TEST_NAME=line_parser ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_libc TEST_NAME=linked_list ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_libc TEST_NAME=side_angle_side ASSERTS=1 INPUT_IN_FILE=1
-3 sim TEST_GROUP=simple_libc TEST_NAME=stdin_test ASSERTS=1 INPUT_IN_FILE=1
+verilate_design verilate
+build_simulator build
+prebuild_tests  build_test TEST_GROUP=simple_asm TEST_NAME=hello_world
+prebuild_tests  build_test TEST_GROUP=simple_c TEST_NAME=hello_world
+prebuild_tests  build_test TEST_GROUP=simple_libc TEST_NAME=hello_world
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=all_inst
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=array_sum
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=array_sum_fast
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=bubble_sort
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=bubble_sort_fast
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=fib_seq
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=fib_seq_fast
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=halt
+build_tests     build_test TEST_GROUP=simple_asm TEST_NAME=hazards
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=array_sum
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=bss_test
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=bubble_sort
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=double_arith
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=fact_seq
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=fib_rec
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=fib_seq
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=float_arith
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=pointers
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=prime_nums
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=return0
+build_tests     build_test TEST_GROUP=simple_c TEST_NAME=series
+build_tests     build_test TEST_GROUP=simple_libc TEST_NAME=line_parser
+build_tests     build_test TEST_GROUP=simple_libc TEST_NAME=linked_list
+build_tests     build_test TEST_GROUP=simple_libc TEST_NAME=side_angle_side
+build_tests     build_test TEST_GROUP=simple_libc TEST_NAME=stdin_test
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=all_inst ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=array_sum ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=array_sum_fast ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=bubble_sort_fast ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=fib_seq ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=fib_seq_fast ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=halt ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=hazards ASSERTS=1
+run_tests       sim TEST_GROUP=simple_asm TEST_NAME=hello_world ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=array_sum ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=bss_test ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=bubble_sort ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=double_arith ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=fact_seq ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=fib_rec ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=fib_seq ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=float_arith ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=hello_world ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=pointers ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=prime_nums ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=return0 ASSERTS=1
+run_tests       sim TEST_GROUP=simple_c TEST_NAME=series ASSERTS=1
+run_tests       sim TEST_GROUP=simple_libc TEST_NAME=hello_world ASSERTS=1
+run_tests       sim TEST_GROUP=simple_libc TEST_NAME=line_parser ASSERTS=1
+run_tests       sim TEST_GROUP=simple_libc TEST_NAME=linked_list ASSERTS=1
+run_tests       sim TEST_GROUP=simple_libc TEST_NAME=side_angle_side ASSERTS=1
+run_tests       sim TEST_GROUP=simple_libc TEST_NAME=stdin_test ASSERTS=1

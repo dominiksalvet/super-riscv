@@ -75,8 +75,8 @@ main() {
             return 1
         fi
 
-        # create unique simulation output directory for each simulation run
-        line_cmd+=" SIM_OUT_DIR=${SIM_DIR}/$lineno"
+        # add always present arguments
+        line_cmd+=" INPUT_IN_FILE=1 SIM_OUT_DIR=${SIM_DIR}/$lineno"
 
         if [ "$cur_group" = "$line_group" ]; then
             group_cmds+=("$line_cmd")
