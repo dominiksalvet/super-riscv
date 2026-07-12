@@ -27,41 +27,55 @@ set -e
 
 # $1 - workload name (optional)
 init_env() {
+    readonly WORKLOADS_DIR=workloads
+    readonly WORKLOAD_NAME="${1:-quick_check}"
+    readonly WORKLOAD_PATH="$WORKLOADS_DIR/${WORKLOAD_NAME}.workload"
+
     OUT_DIR="$(make api_get_out_dir)"
     readonly OUT_DIR
-    # TODO: rename to out/workoads/quick_check/1/ret_val.txt?
-    readonly SIM_DIR="$OUT_DIR/sim"
-    readonly WORKLOADS_DIR=workloads
-
-    # global variables
-    workload_name="${1:-quick_check}"
-    workload_path="$WORKLOADS_DIR/${workload_name}.workload"
+    readonly OUT_WORKLOAD_DIR="$OUT_DIR/workloads/$WORKLOAD_NAME"
 }
 
-# $1 - parallel group
+# $1 - command ID
+# $2 - command (string of make arguments)
+execute_command() {
+    mkdir -p "$OUT_WORKLOAD_DIR/$1"
+
+    local -a cmd_array
+    read -r -a cmd_array <<< "$2"
+    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$OUT_WORKLOAD_DIR/$1")
+
+    # TODO: store output to SIM_OUT_DIR if failing for simpler debugging
+    make "${cmd_array[@]}" > /dev/null
+}
+
+# $1 - group name
+# $2 - first command ID
 # $@ - make commands
 execute_group() {
     echo "Executing group $1 ..."
-    shift
+    local cmd_id="$2"
+    shift 2
 
+    # TODO: make this parallel (with reasonable limit)
     local cmd_line
-    local -a cmd_array
-
-    # TODO: make this parallel
     for cmd_line in "$@"; do
-        read -r -a cmd_array <<< "$cmd_line"
-        make "${cmd_array[@]}" > /dev/null
+        execute_command "$cmd_id" "$cmd_line"
+        ((cmd_id++))
     done
 }
 
+# TODO: add error reporting (and how to reproduce)
 main() {
     echo 'Initializing execution environment ...'
     init_env "$1"
 
-    echo "Running workload $workload_name ..."
+    echo "Running workload $WORKLOAD_NAME ..."
+    mkdir -p "$OUT_WORKLOAD_DIR"
 
     local cur_group="" # current parallel group
-    local -a group_cmds=() # make commands to be executed in parallel
+    local group_lineno # start line number of group
+    local -a group_cmds=() # make commands in group
 
     local lineno=0
     local line_group
@@ -71,31 +85,32 @@ main() {
         ((++lineno))
 
         if [[ -z "$line_group" || -z "$line_cmd" ]]; then
-            echo "ERROR: ${workload_path}:${lineno}: invalid line" >&2
+            echo "ERROR: ${WORKLOAD_PATH}:${lineno}: invalid line" >&2
             return 1
         fi
-
-        # add always present arguments
-        line_cmd+=" INPUT_IN_FILE=1 SIM_OUT_DIR=${SIM_DIR}/$lineno"
 
         if [ "$cur_group" = "$line_group" ]; then
             group_cmds+=("$line_cmd")
         else
             if (( lineno != 1 )); then
-                execute_group "$cur_group" "${group_cmds[@]}"
+                execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}"
             fi
 
             cur_group="$line_group"
+            group_lineno="$lineno"
             group_cmds=("$line_cmd")
         fi
-    done < "$workload_path"
+
+    done < "$WORKLOAD_PATH"
 
     if (( lineno == 0 )); then
-        echo "ERROR: $workload_path is empty" >&2
+        echo "ERROR: $WORKLOAD_PATH is empty" >&2
         return 1
     else
-        execute_group "$cur_group" "${group_cmds[@]}"
+        execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}"
     fi
+
+    echo "Workload $WORKLOAD_NAME finished successfully!"
 }
 
 main "$@"
