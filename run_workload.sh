@@ -39,14 +39,21 @@ init_env() {
 # $1 - command ID
 # $2 - command (string of make arguments)
 execute_command() {
-    mkdir -p "$OUT_WORKLOAD_DIR/$1"
+    local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
+    mkdir -p "$cmd_out_dir"
 
     local -a cmd_array
     read -r -a cmd_array <<< "$2"
-    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$OUT_WORKLOAD_DIR/$1")
+    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$cmd_out_dir")
 
-    # TODO: store output to SIM_OUT_DIR if failing for simpler debugging
-    make "${cmd_array[@]}" > /dev/null
+    local cmd_log_file="$cmd_out_dir/command.log"
+    {
+        echo "make ${cmd_array[*]}"
+        echo
+
+        # execute the make command itself
+        make "${cmd_array[@]}"
+    } > "$cmd_log_file" 2>&1
 }
 
 # $1 - group name
