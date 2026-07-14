@@ -34,6 +34,9 @@ init_env() {
     OUT_DIR="$(make api_get_out_dir)"
     readonly OUT_DIR
     readonly OUT_WORKLOAD_DIR="$OUT_DIR/workloads/$WORKLOAD_NAME"
+
+    MAX_JOBS="$(nproc)"
+    readonly MAX_JOBS
 }
 
 # $1 - command ID
@@ -64,18 +67,30 @@ execute_group() {
     local cmd_id="$2"
     shift 2
 
-    # TODO: make this parallel (with reasonable limit)
+    # TODO: add simple progress tracking
+    # TODO: track return values and fail if required
+    local cur_jobs=0
     local cmd_line
     for cmd_line in "$@"; do
-        execute_command "$cmd_id" "$cmd_line"
-        ((cmd_id++))
+        execute_command "$cmd_id" "$cmd_line" &
+
+        ((++cur_jobs))
+        ((++cmd_id))
+
+        if (( cur_jobs == MAX_JOBS )); then
+            wait -n
+            ((cur_jobs--))
+        fi
     done
+
+    wait
 }
 
 # TODO: add error reporting (and how to reproduce)
 main() {
     echo 'Initializing execution environment ...'
     init_env "$1"
+    echo "Detected $MAX_JOBS execution threads ..."
 
     echo "Running workload $WORKLOAD_NAME ..."
     mkdir -p "$OUT_WORKLOAD_DIR"
