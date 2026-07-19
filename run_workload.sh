@@ -39,55 +39,6 @@ init_env() {
     readonly MAX_JOBS
 }
 
-# $1 - command ID
-# $2 - command (string of make arguments)
-execute_command() {
-    trap - INT QUIT TERM EXIT
-
-    local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
-    mkdir -p "$cmd_out_dir"
-
-    local -a cmd_array
-    read -r -a cmd_array <<< "$2"
-    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$cmd_out_dir")
-
-    local cmd_log_file="$cmd_out_dir/command.log"
-    {
-        echo "make ${cmd_array[*]}"
-        echo
-
-        # execute the make command itself
-        make "${cmd_array[@]}"
-    } > "$cmd_log_file" 2>&1
-}
-
-# $1 - group name
-# $2 - first command ID
-# $@ - make commands
-execute_group() {
-    echo "Executing group $1 ..."
-    local cmd_id="$2"
-    shift 2
-
-    # TODO: add simple progress tracking
-    # TODO: track return values and fail if required
-    local cur_jobs=0
-    local cmd_line
-    for cmd_line in "$@"; do
-        execute_command "$cmd_id" "$cmd_line" &
-
-        ((++cur_jobs))
-        ((++cmd_id))
-
-        if (( cur_jobs == MAX_JOBS )); then
-            wait -n
-            ((cur_jobs--))
-        fi
-    done
-
-    wait
-}
-
 # TODO: add error reporting (and how to reproduce)
 main() {
     echo 'Initializing execution environment ...'
@@ -137,23 +88,53 @@ main() {
     echo "Workload $WORKLOAD_NAME finished successfully!"
 }
 
-# $1 - signal name
-kill_jobs() {
-    local pids
-    pids="$(jobs -p)"
+# $1 - group name
+# $2 - first command ID
+# $@ - make commands
+execute_group() {
+    echo "Executing group $1 ..."
+    local cmd_id="$2"
+    shift 2
 
-    local pid
-    for pid in $pids; do
-        echo "Killing $pid"
-        kill -"$1" -- "-$pid" || true
+    # TODO: add simple progress tracking
+    # TODO: track return values and fail if required
+    local cur_jobs=0
+    local cmd_line
+    for cmd_line in "$@"; do
+        execute_command "$cmd_id" "$cmd_line" &
+
+        ((++cur_jobs))
+        ((++cmd_id))
+
+        if (( cur_jobs == MAX_JOBS )); then
+            wait -n
+            ((cur_jobs--))
+        fi
     done
 
-    # plain 'wait' tends to suffer from races here
-    for pid in $pids; do
-        wait "$pid" || true
-    done
+    wait
+}
 
-    echo 'All jobs terminated!' >&2
+# $1 - command ID
+# $2 - command (string of make arguments)
+execute_command() {
+    trap - INT QUIT TERM EXIT
+
+    local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
+    mkdir -p "$cmd_out_dir"
+
+    local -a cmd_array
+    read -r -a cmd_array <<< "$2"
+    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$cmd_out_dir")
+
+    local cmd_log_file="$cmd_out_dir/command.log"
+    {
+        echo "make ${cmd_array[*]}"
+        echo
+
+        # execute the make command itself
+        make "${cmd_array[@]}"
+    } > "$cmd_log_file" 2>&1
 }
 
 trap_int() {
@@ -188,6 +169,25 @@ trap_exit() {
 
     echo "ERROR: unexpected exit code $exit_code of internal command, stopping active jobs ..." >&2
     kill_jobs TERM
+}
+
+# $1 - signal name
+kill_jobs() {
+    local pids
+    pids="$(jobs -p)"
+
+    local pid
+    for pid in $pids; do
+        echo "Killing $pid"
+        kill -"$1" -- "-$pid" || true
+    done
+
+    # plain 'wait' tends to suffer from races here
+    for pid in $pids; do
+        wait "$pid" || true
+    done
+
+    echo 'All jobs terminated!' >&2
 }
 
 trap 'trap_int' INT
