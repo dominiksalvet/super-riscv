@@ -188,15 +188,14 @@ kill_jobs() {
     pids="$(jobs -p)"
 
     # TODO: add a diagnosis message of killed commands
-    # TODO: make output of kill/wait silent
     local pid
     for pid in $pids; do
-        kill -"$1" -- "-$pid" || true
+        kill -"$1" -- "-$pid" 2>/dev/null || true
     done
 
     # plain 'wait' tends to suffer from races here
     for pid in $pids; do
-        wait "$pid" || true
+        wait "$pid" 2>/dev/null || true
     done
 
     echo 'All jobs terminated!' >&2
