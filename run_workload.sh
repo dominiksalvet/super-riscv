@@ -23,7 +23,7 @@
 # describing individual steps and parallel execution opportunities. It is mainly
 # intended for processor testing.
 
-set -em
+set -emE
 
 # $1 - workload name (optional)
 init_env() {
@@ -118,7 +118,7 @@ execute_group() {
 # $1 - command ID
 # $2 - command (string of make arguments)
 execute_command() {
-    trap - INT QUIT TERM EXIT
+    trap - INT QUIT TERM ERR
 
     local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
     mkdir -p "$cmd_out_dir"
@@ -137,38 +137,45 @@ execute_command() {
     } > "$cmd_log_file" 2>&1
 }
 
-trap_int() {
-    trap - EXIT
+# $1 - signal name
+handle_sig() {
+    local sig="$1"
+    local child_sig
 
-    echo 'Received SIGINT, stopping active jobs ...' >&2
-    kill_jobs INT
+    case "$sig" in
+        INT)
+            echo 'Received SIGINT, stopping active jobs ...' >&2
+            child_sig=INT
+            ;;
+        QUIT)
+            echo 'Received SIGQUIT, killing active jobs ...' >&2
+            child_sig=KILL
+            ;;
+        TERM)
+            echo 'Received SIGTERM, stopping active jobs ...' >&2
+            child_sig=TERM
+            ;;
+        # TODO: provide better diagnosis
+        ERR)
+            echo 'Received SIGERR, stopping active jobs ...' >&2
+            # echo "ERROR: unexpected exit code $exit_code of internal command, stopping active jobs ..." >&2
+            child_sig=TERM
+            ;;
+        *)
+            echo 'ERROR: Received unhandled signal!' >&2
+            exit 1
+            ;;
+    esac
 
-    exit 130
-}
+    kill_jobs "$child_sig"
 
-trap_quit() {
-    trap - EXIT
-
-    echo 'Received SIGQUIT, killing active jobs ...' >&2
-    kill_jobs KILL
-
-    exit 131
-}
-
-trap_term() {
-    trap - EXIT
-    
-    echo 'Received SIGTERM, stopping active jobs ...' >&2
-    kill_jobs TERM
-
-    exit 143
-}
-
-trap_exit() {
-    exit_code="$?"
-
-    echo "ERROR: unexpected exit code $exit_code of internal command, stopping active jobs ..." >&2
-    kill_jobs TERM
+    case "$sig" in
+        INT) exit 130 ;;
+        QUIT) exit 131 ;;
+        TERM) exit 143 ;;
+        # TODO: check if correct
+        ERR) exit 1 ;;
+    esac
 }
 
 # $1 - signal name
@@ -176,9 +183,10 @@ kill_jobs() {
     local pids
     pids="$(jobs -p)"
 
+    # TODO: add a diagnosis message of killed commands
+    # TODO: make output of kill/wait silent
     local pid
     for pid in $pids; do
-        echo "Killing $pid"
         kill -"$1" -- "-$pid" || true
     done
 
@@ -190,12 +198,9 @@ kill_jobs() {
     echo 'All jobs terminated!' >&2
 }
 
-trap 'trap_int' INT
-trap 'trap_quit' QUIT
-trap 'trap_term' TERM
-trap 'trap_exit' EXIT
+trap 'handle_sig INT' INT
+trap 'handle_sig QUIT' QUIT
+trap 'handle_sig TERM' TERM
+trap 'handle_sig ERR' ERR
 
 main "$@"
-
-# runner executed normally, disable EXIT trap
-trap - EXIT
