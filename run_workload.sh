@@ -23,7 +23,7 @@
 # describing individual steps and parallel execution opportunities. It is mainly
 # intended for processor testing.
 
-set -e
+set -em
 
 # $1 - workload name (optional)
 init_env() {
@@ -42,6 +42,8 @@ init_env() {
 # $1 - command ID
 # $2 - command (string of make arguments)
 execute_command() {
+    trap - INT QUIT TERM EXIT
+
     local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
     mkdir -p "$cmd_out_dir"
 
@@ -135,4 +137,65 @@ main() {
     echo "Workload $WORKLOAD_NAME finished successfully!"
 }
 
+# $1 - signal name
+kill_jobs() {
+    local pids
+    pids="$(jobs -p)"
+
+    local pid
+    for pid in $pids; do
+        echo "Killing $pid"
+        kill -"$1" -- "-$pid" || true
+    done
+
+    # plain 'wait' tends to suffer from races here
+    for pid in $pids; do
+        wait "$pid" || true
+    done
+
+    echo 'All jobs terminated!' >&2
+}
+
+trap_int() {
+    trap - EXIT
+
+    echo 'Received SIGINT, stopping active jobs ...' >&2
+    kill_jobs INT
+
+    exit 130
+}
+
+trap_quit() {
+    trap - EXIT
+
+    echo 'Received SIGQUIT, killing active jobs ...' >&2
+    kill_jobs KILL
+
+    exit 131
+}
+
+trap_term() {
+    trap - EXIT
+    
+    echo 'Received SIGTERM, stopping active jobs ...' >&2
+    kill_jobs TERM
+
+    exit 143
+}
+
+trap_exit() {
+    exit_code="$?"
+
+    echo "ERROR: unexpected exit code $exit_code of internal command, stopping active jobs ..." >&2
+    kill_jobs TERM
+}
+
+trap 'trap_int' INT
+trap 'trap_quit' QUIT
+trap 'trap_term' TERM
+trap 'trap_exit' EXIT
+
 main "$@"
+
+# runner executed normally, disable EXIT trap
+trap - EXIT
