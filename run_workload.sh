@@ -155,12 +155,6 @@ handle_sig() {
             echo 'Received SIGTERM, stopping active jobs ...' >&2
             child_sig=TERM
             ;;
-        # TODO: provide better diagnosis
-        ERR)
-            echo 'Received SIGERR, stopping active jobs ...' >&2
-            # echo "ERROR: unexpected exit code $exit_code of internal command, stopping active jobs ..." >&2
-            child_sig=TERM
-            ;;
         *)
             echo 'ERROR: Received unhandled signal!' >&2
             exit 1
@@ -173,9 +167,19 @@ handle_sig() {
         INT) exit 130 ;;
         QUIT) exit 131 ;;
         TERM) exit 143 ;;
-        # TODO: check if correct
-        ERR) exit 1 ;;
     esac
+}
+
+# $1 - error line number
+# $2 - failed command
+# $3 - command exit code
+handle_err() {
+    echo "ERROR: ${BASH_SOURCE[0]}:$1: internal command '$2' returned $3!" >&2
+    echo 'Stopping active jobs ...' >&2
+
+    kill_jobs 'TERM'
+
+    exit "$3"
 }
 
 # $1 - signal name
@@ -201,6 +205,7 @@ kill_jobs() {
 trap 'handle_sig INT' INT
 trap 'handle_sig QUIT' QUIT
 trap 'handle_sig TERM' TERM
-trap 'handle_sig ERR' ERR
+# handle also 'set -e' fails
+trap 'handle_err "$LINENO" "$BASH_COMMAND" "$?"' ERR
 
 main "$@"
