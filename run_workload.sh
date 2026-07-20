@@ -25,6 +25,9 @@
 
 set -emE
 
+# global variables
+declare -A pid_to_cmd_id
+
 # $1 - workload name (optional)
 init_env() {
     readonly WORKLOADS_DIR=workloads
@@ -92,27 +95,38 @@ main() {
 # $2 - first command ID
 # $@ - make commands
 execute_group() {
-    echo "Executing group $1 ..."
+    local group_name="$1"
     local cmd_id="$2"
     shift 2
 
+    echo "Executing group $group_name ..."
+
     # TODO: add simple progress tracking
-    # TODO: track return values and fail if required
-    local cur_jobs=0
+    local -a failed_cmd_ids=()
+    local running_jobs=0
     local cmd_line
     for cmd_line in "$@"; do
         execute_command "$cmd_id" "$cmd_line" &
+        pid_to_cmd_id["$!"]="$cmd_id"
 
-        ((++cur_jobs))
+        ((++running_jobs))
         ((++cmd_id))
 
-        if (( cur_jobs == MAX_JOBS )); then
-            wait -n
-            ((cur_jobs--))
-        fi
+        while (( running_jobs >= MAX_JOBS )); do
+            reap_one_job
+        done
     done
 
-    wait
+    while (( running_jobs > 0 )); do
+        reap_one_job
+    done
+
+    # TODO: add summary report of all errors (sorted)
+    # TODO: handle 'return 1' outside due to 'set -e'
+    # if any command fails, the whole group fails
+    if (( ${#failed_cmd_ids[@]} > 0 )); then
+        return 1
+    fi
 }
 
 # $1 - command ID
@@ -135,6 +149,21 @@ execute_command() {
         # execute the make command itself
         make "${cmd_array[@]}"
     } > "$cmd_log_file" 2>&1
+}
+
+reap_one_job() {
+    local pid
+
+    if ! wait -n -p pid; then
+        local failed_cmd_id="${pid_to_cmd_id[$pid]}"
+        failed_cmd_ids+=("$failed_cmd_id")
+
+        # TODO: improve this report?
+        echo "FAIL #$failed_cmd_id" >&2
+    fi
+
+    unset "pid_to_cmd_id[$pid]"
+    ((running_jobs--))
 }
 
 # $1 - signal name
