@@ -23,7 +23,7 @@
 # describing individual steps and parallel execution opportunities. It is mainly
 # intended for processor testing.
 
-set -emE
+set -mu
 
 # global variables
 declare -A pid_to_cmd_id
@@ -34,22 +34,22 @@ init_env() {
     readonly WORKLOAD_NAME="${1:-quick_check}"
     readonly WORKLOAD_PATH="$WORKLOADS_DIR/${WORKLOAD_NAME}.workload"
 
-    OUT_DIR="$(make api_get_out_dir)"
+    OUT_DIR="$(make api_get_out_dir)" || return
     readonly OUT_DIR
     readonly OUT_WORKLOAD_DIR="$OUT_DIR/workloads/$WORKLOAD_NAME"
 
-    MAX_JOBS="$(nproc)"
+    MAX_JOBS="$(nproc)" || return
     readonly MAX_JOBS
 }
 
 # TODO: add error reporting (and how to reproduce)
 main() {
     echo 'Initializing execution environment ...'
-    init_env "$1"
+    init_env "${1:-}" || return
     echo "Detected $MAX_JOBS execution threads ..."
 
     echo "Running workload $WORKLOAD_NAME ..."
-    mkdir -p "$OUT_WORKLOAD_DIR"
+    mkdir -p "$OUT_WORKLOAD_DIR" || return
 
     local cur_group="" # current parallel group
     local group_lineno # start line number of group
@@ -71,7 +71,7 @@ main() {
             group_cmds+=("$line_cmd")
         else
             if (( lineno != 1 )); then
-                execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}"
+                execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}" || return
             fi
 
             cur_group="$line_group"
@@ -79,15 +79,16 @@ main() {
             group_cmds=("$line_cmd")
         fi
 
-    done < "$WORKLOAD_PATH"
+    done < "$WORKLOAD_PATH" || return
 
     if (( lineno == 0 )); then
         echo "ERROR: $WORKLOAD_PATH is empty" >&2
         return 1
     else
-        execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}"
+        execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}" || return
     fi
 
+    # TODO: maybe move out of this function?
     echo "Workload $WORKLOAD_NAME finished successfully!"
 }
 
@@ -97,7 +98,7 @@ main() {
 execute_group() {
     local group_name="$1"
     local cmd_id="$2"
-    shift 2
+    shift 2 || return
 
     echo "Executing group $group_name ..."
 
@@ -113,16 +114,15 @@ execute_group() {
         ((++cmd_id))
 
         while (( running_jobs >= MAX_JOBS )); do
-            reap_one_job
+            reap_one_job || return
         done
     done
 
     while (( running_jobs > 0 )); do
-        reap_one_job
+        reap_one_job || return
     done
 
     # TODO: add summary report of all errors (sorted)
-    # TODO: handle 'return 1' outside due to 'set -e'
     # if any command fails, the whole group fails
     if (( ${#failed_cmd_ids[@]} > 0 )); then
         return 1
@@ -132,10 +132,10 @@ execute_group() {
 # $1 - command ID
 # $2 - command (string of make arguments)
 execute_command() {
-    trap - INT QUIT TERM ERR
+    trap - INT QUIT TERM
 
     local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
-    mkdir -p "$cmd_out_dir"
+    mkdir -p "$cmd_out_dir" || return
 
     local -a cmd_array
     read -r -a cmd_array <<< "$2"
@@ -199,22 +199,10 @@ handle_sig() {
     esac
 }
 
-# $1 - error line number
-# $2 - failed command
-# $3 - command exit code
-handle_err() {
-    echo "ERROR: ${BASH_SOURCE[0]}:$1: internal command '$2' returned $3!" >&2
-    echo 'Stopping active jobs ...' >&2
-
-    kill_jobs 'TERM'
-
-    exit "$3"
-}
-
 # $1 - signal name
 kill_jobs() {
     local pids
-    pids="$(jobs -p)"
+    pids="$(jobs -p)" || return
 
     # TODO: add a diagnosis message of killed commands
     local pid
@@ -233,7 +221,6 @@ kill_jobs() {
 trap 'handle_sig INT' INT
 trap 'handle_sig QUIT' QUIT
 trap 'handle_sig TERM' TERM
-# handle also 'set -e' fails
-trap 'handle_err "$LINENO" "$BASH_COMMAND" "$?"' ERR
 
+# TODO: if failed, check if there are active jobs
 main "$@"
