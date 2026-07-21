@@ -42,12 +42,27 @@ init_env() {
     readonly MAX_JOBS
 }
 
-# TODO: add error reporting (and how to reproduce)
 main() {
     echo 'Initializing execution environment ...'
     init_env "${1:-}" || return
     echo "Detected $MAX_JOBS execution threads ..."
 
+    local exit_code
+    # run workload defined by sooner initialization
+    run_workload
+    exit_code="$?"
+
+    if [ "$exit_code" = 0 ]; then
+        echo "Workload $WORKLOAD_NAME finished successfully!"
+    else
+        # TODO: if failed, check if there are active jobs
+        # TODO: add error reporting (and how to reproduce)
+        echo "Workload failed!" >&2
+        return "$exit_code"
+    fi
+}
+
+run_workload() {
     echo "Running workload $WORKLOAD_NAME ..."
     mkdir -p "$OUT_WORKLOAD_DIR" || return
 
@@ -87,9 +102,6 @@ main() {
     else
         execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}" || return
     fi
-
-    # TODO: maybe move out of this function?
-    echo "Workload $WORKLOAD_NAME finished successfully!"
 }
 
 # $1 - group name
@@ -171,6 +183,7 @@ handle_sig() {
     local sig="$1"
     local child_sig
 
+    echo
     case "$sig" in
         INT)
             echo 'Received SIGINT, stopping active jobs ...' >&2
@@ -222,5 +235,4 @@ trap 'handle_sig INT' INT
 trap 'handle_sig QUIT' QUIT
 trap 'handle_sig TERM' TERM
 
-# TODO: if failed, check if there are active jobs
 main "$@"
