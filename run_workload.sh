@@ -40,6 +40,12 @@ init_env() {
 
     MAX_JOBS="$(nproc)" || return
     readonly MAX_JOBS
+
+    if [ -t 1 ]; then
+        readonly USE_TTY=1
+    else
+        readonly USE_TTY=0
+    fi
 }
 
 main() {
@@ -57,7 +63,7 @@ main() {
     else
         # TODO: if failed, check if there are active jobs
         # TODO: add error reporting (and how to reproduce)
-        echo "Workload failed!" >&2
+        echo "Workload $WORKLOAD_NAME failed!"
         return "$exit_code"
     fi
 }
@@ -93,7 +99,6 @@ run_workload() {
             group_lineno="$lineno"
             group_cmds=("$line_cmd")
         fi
-
     done < "$WORKLOAD_PATH" || return
 
     if (( lineno == 0 )); then
@@ -112,11 +117,14 @@ execute_group() {
     local cmd_id="$2"
     shift 2 || return
 
-    echo "Executing group $group_name ..."
-
-    # TODO: add simple progress tracking
+    local finished_jobs=0
+    local total_jobs="$#"
+    local passed_jobs=0
     local -a failed_cmd_ids=()
     local running_jobs=0
+
+    print_progress_running
+
     local cmd_line
     for cmd_line in "$@"; do
         execute_command "$cmd_id" "$cmd_line" &
@@ -124,6 +132,8 @@ execute_group() {
 
         ((++running_jobs))
         ((++cmd_id))
+
+        print_progress_running
 
         while (( running_jobs >= MAX_JOBS )); do
             reap_one_job || return
@@ -134,10 +144,69 @@ execute_group() {
         reap_one_job || return
     done
 
+    print_progress_last
+
     # TODO: add summary report of all errors (sorted)
     # if any command fails, the whole group fails
     if (( ${#failed_cmd_ids[@]} > 0 )); then
         return 1
+    fi
+}
+
+# uses execute_group() locals
+reap_one_job() {
+    local pid
+
+    if ! wait -n -p pid; then
+        local failed_cmd_id="${pid_to_cmd_id[$pid]}"
+        print_progress_failed "$failed_cmd_id"
+        failed_cmd_ids+=("$failed_cmd_id")
+    else
+        ((++passed_jobs))
+    fi
+
+    ((++finished_jobs))
+    ((running_jobs--))
+    unset "pid_to_cmd_id[$pid]"
+
+    print_progress_running
+}
+
+# uses execute_group() locals
+print_progress_running() {
+    print_progress "  | $running_jobs running "
+}
+
+# $1 - failed command ID
+print_progress_failed() {
+    print_progress "    #$1 FAILED"
+    echo
+}
+
+print_progress_last() {
+    print_progress
+    echo
+}
+
+# uses execute_group() locals
+# $1 - report suffix (optional)
+print_progress() {
+    if (( USE_TTY )); then
+        printf '\r\033[K[%s] %s/%s finished (%s passed, %s failed)%s' \
+            "$group_name" \
+            "$finished_jobs" \
+            "$total_jobs" \
+            "$passed_jobs" \
+            "${#failed_cmd_ids[@]}" \
+            "${1:-}"
+    else
+        printf '[%s] %s/%s finished (%s passed, %s failed)%s\n' \
+            "$group_name" \
+            "$finished_jobs" \
+            "$total_jobs" \
+            "$passed_jobs" \
+            "${#failed_cmd_ids[@]}" \
+            "${1:-}"
     fi
 }
 
@@ -161,21 +230,6 @@ execute_command() {
         # execute the make command itself
         make "${cmd_array[@]}"
     } > "$cmd_log_file" 2>&1
-}
-
-reap_one_job() {
-    local pid
-
-    if ! wait -n -p pid; then
-        local failed_cmd_id="${pid_to_cmd_id[$pid]}"
-        failed_cmd_ids+=("$failed_cmd_id")
-
-        # TODO: improve this report?
-        echo "FAIL #$failed_cmd_id" >&2
-    fi
-
-    unset "pid_to_cmd_id[$pid]"
-    ((running_jobs--))
 }
 
 # $1 - signal name
