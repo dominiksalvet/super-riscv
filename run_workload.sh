@@ -271,18 +271,31 @@ kill_jobs() {
     local pids
     pids="$(jobs -p)" || return
 
-    # TODO: add a diagnosis message of killed commands
-    local pid
-    for pid in $pids; do
-        kill -"$1" -- "-$pid" 2>/dev/null || true
-    done
+    if [ "$pids" ]; then
+        printf 'Stopping commands ' >&2
 
-    # plain 'wait' tends to suffer from races here
-    for pid in $pids; do
-        wait "$pid" 2>/dev/null || true
-    done
+        local pid
+        for pid in $pids; do
+            if [[ -v "pid_to_cmd_id[$pid]" ]]; then
+                printf '%s ' "#${pid_to_cmd_id[$pid]}" >&2
+            else
+                printf '<unknown> '
+            fi
 
-    echo 'All jobs terminated!' >&2
+            # send signal to the whole process group
+            kill -"$1" -- "-$pid" 2>/dev/null || true
+        done
+        echo '...' >&2
+
+        # plain 'wait' tends to suffer from races here
+        for pid in $pids; do
+            wait "$pid" 2>/dev/null || true
+        done
+
+        echo 'All jobs terminated!' >&2
+    else
+        echo 'There are no active jobs.' >&2
+    fi
 }
 
 trap 'handle_sig INT' INT
