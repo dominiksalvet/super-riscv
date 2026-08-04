@@ -61,7 +61,6 @@ main() {
     if [ "$exit_code" = 0 ]; then
         echo "Workload $WORKLOAD_NAME finished successfully!"
     else
-        # TODO: add error reporting (and how to reproduce)
         echo "Workload $WORKLOAD_NAME failed!"
         return "$exit_code"
     fi
@@ -145,9 +144,9 @@ execute_group() {
 
     print_progress_last
 
-    # TODO: add summary report of all errors (sorted)
     # if any command fails, the whole group fails
     if (( ${#failed_cmd_ids[@]} > 0 )); then
+        print_failed_tests "${failed_cmd_ids[@]}"
         return 1
     fi
 }
@@ -207,6 +206,25 @@ print_progress() {
             "${#failed_cmd_ids[@]}" \
             "${1:-}"
     fi
+}
+
+# TODO: sort errors before printing
+# $@ - failed command IDs
+print_failed_tests() {
+    local cmd_log_file
+    local cmd_to_reproduce
+    local failed_cmd_id
+
+    echo
+    for failed_cmd_id in "$@"; do
+        cmd_log_file="$OUT_WORKLOAD_DIR/$failed_cmd_id/command.log"
+        cmd_to_reproduce="$(head -n 1 "$cmd_log_file")" || return
+
+        echo "FAILED #$failed_cmd_id"
+        echo "  Log file:  $cmd_log_file"
+        echo "  Reproduce: $cmd_to_reproduce"
+        echo
+    done
 }
 
 # $1 - command ID
@@ -278,7 +296,7 @@ kill_jobs() {
             if [[ -v "pid_to_cmd_id[$pid]" ]]; then
                 printf '%s ' "#${pid_to_cmd_id[$pid]}" >&2
             else
-                printf '<unknown> '
+                printf '<unknown> ' >&2
             fi
 
             # send signal to the whole process group
