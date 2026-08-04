@@ -208,15 +208,17 @@ print_progress() {
     fi
 }
 
-# TODO: sort errors before printing
 # $@ - failed command IDs
 print_failed_tests() {
+    local -a sorted_cmd_ids
+    mapfile -t sorted_cmd_ids < <(printf '%s\n' "$@" | sort -n) || return
+
     local cmd_log_file
     local cmd_to_reproduce
     local failed_cmd_id
 
     echo
-    for failed_cmd_id in "$@"; do
+    for failed_cmd_id in "${sorted_cmd_ids[@]}"; do
         cmd_log_file="$OUT_WORKLOAD_DIR/$failed_cmd_id/command.log"
         cmd_to_reproduce="$(head -n 1 "$cmd_log_file")" || return
 
