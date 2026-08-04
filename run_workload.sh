@@ -61,7 +61,6 @@ main() {
     if [ "$exit_code" = 0 ]; then
         echo "Workload $WORKLOAD_NAME finished successfully!"
     else
-        # TODO: if failed, check if there are active jobs
         # TODO: add error reporting (and how to reproduce)
         echo "Workload $WORKLOAD_NAME failed!"
         return "$exit_code"
@@ -136,12 +135,12 @@ execute_group() {
         print_progress_running
 
         while (( running_jobs >= MAX_JOBS )); do
-            reap_one_job || return
+            reap_one_job
         done
     done
 
     while (( running_jobs > 0 )); do
-        reap_one_job || return
+        reap_one_job
     done
 
     print_progress_last
@@ -179,7 +178,7 @@ print_progress_running() {
 
 # $1 - failed command ID
 print_progress_failed() {
-    print_progress "    #$1 FAILED"
+    print_progress "    FAILED #$1"
     echo
 }
 
