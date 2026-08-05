@@ -28,6 +28,8 @@ SUPPORTED TARGETS:
     build_test            compile RISC-V program
     hello_world           QUICK START - compile processor and run precompiled
                           hello world example
+    print_test_groups     print supported TEST_GROUP values
+    print_test_names      for given TEST_GROUP, print supported TEST_NAME values
     clean                 clean all generated files
     clean_tests           clean all generated files of tests (RISC-V programs)
     help                  display this help
@@ -101,10 +103,9 @@ TOP_CLASS = V$(TOP_MODULE)
 
 # TODO: start testing using third-party test suites
 # TODO: add support for popular benchmarks
-# supported test group names
-TEST_GROUPS = simple_asm\
-              simple_c\
-              simple_libc
+SUPPORTED_TEST_GROUPS = simple_asm\
+                        simple_c\
+                        simple_libc
 
 ################################################################################
 #                         Process user-defined macros                          #
@@ -115,6 +116,18 @@ TEST_GROUP ?= simple_asm
 TEST_NAME ?= hello_world
 SIM_OUT_DIR ?= $(OUT_DIR)
 X_VAL ?= 0
+
+ifeq ($(filter $(TEST_GROUP),$(SUPPORTED_TEST_GROUPS)),)
+    $(error Invalid TEST_GROUP value '$(TEST_GROUP)')
+endif
+
+ifndef TEST_NAME
+    $(error TEST_NAME cannot be empty)
+endif
+
+ifndef SIM_OUT_DIR
+    $(error SIM_OUT_DIR cannot be empty)
+endif
 
 ifeq ($(filter $(X_VAL),0 1 2),)
     $(error X_VAL must be 0, 1, or 2 (got '$(X_VAL)'))
@@ -257,7 +270,7 @@ open_waves:
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
 
 print_test_groups:
-	@echo $(TEST_GROUPS) | tr ' ' '\n'
+	@echo $(SUPPORTED_TEST_GROUPS) | tr ' ' '\n'
 
 print_test_names:
 	@$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) --no-print-directory $@
@@ -271,3 +284,11 @@ clean_tests:
 help:
 	$(info $(HELP_MSG))
 	@true
+
+################################################################################
+#                             API for other tools                              #
+################################################################################
+
+# exposing useful constants keeps the Makefile centralized
+api_get_out_dir:
+	@echo $(OUT_DIR)

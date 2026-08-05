@@ -1,0 +1,324 @@
+#!/usr/bin/env bash
+
+#
+#   Super RISC-V - superscalar dual-issue RISC-V processor
+#   Copyright (C) 2024-2026 Dominik Salvet
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+# This is a universal workload runner created for Super RISC-V processor needs.
+# It uses the delivered Makefile hierarchical build system and 'workload' files
+# describing individual steps and parallel execution opportunities. It is mainly
+# intended for processor testing.
+
+set -mu
+
+# global variables
+declare -A pid_to_cmd_id
+
+# $1 - workload name (optional)
+init_env() {
+    readonly WORKLOADS_DIR=workloads
+    readonly WORKLOAD_NAME="${1:-quick_check}"
+    readonly WORKLOAD_PATH="$WORKLOADS_DIR/${WORKLOAD_NAME}.workload"
+
+    OUT_DIR="$(make api_get_out_dir)" || return
+    readonly OUT_DIR
+    readonly OUT_WORKLOAD_DIR="$OUT_DIR/workloads/$WORKLOAD_NAME"
+
+    MAX_JOBS="$(nproc)" || return
+    readonly MAX_JOBS
+
+    if [ -t 1 ]; then
+        readonly USE_TTY=1
+    else
+        readonly USE_TTY=0
+    fi
+}
+
+main() {
+    echo 'Initializing execution environment ...'
+    init_env "${1:-}" || return
+    echo "Detected $MAX_JOBS execution threads ..."
+
+    local exit_code
+    # run workload defined by sooner initialization
+    run_workload
+    exit_code="$?"
+
+    if [ "$exit_code" = 0 ]; then
+        echo "Workload $WORKLOAD_NAME finished successfully!"
+    else
+        echo "Workload $WORKLOAD_NAME failed!"
+        return "$exit_code"
+    fi
+}
+
+run_workload() {
+    echo "Running workload $WORKLOAD_NAME ..."
+    mkdir -p "$OUT_WORKLOAD_DIR" || return
+
+    local cur_group="" # current parallel group
+    local group_lineno # start line number of group
+    local -a group_cmds=() # make commands in group
+
+    local lineno=0
+    local line_group
+    local line_cmd
+
+    while IFS=' ' read -r line_group line_cmd || [ "$line_group" ] || [ "$line_cmd" ]; do
+        ((++lineno))
+
+        if [[ -z "$line_group" || -z "$line_cmd" ]]; then
+            echo "ERROR: ${WORKLOAD_PATH}:${lineno}: invalid line" >&2
+            return 1
+        fi
+
+        if [ "$cur_group" = "$line_group" ]; then
+            group_cmds+=("$line_cmd")
+        else
+            if (( lineno != 1 )); then
+                execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}" || return
+            fi
+
+            cur_group="$line_group"
+            group_lineno="$lineno"
+            group_cmds=("$line_cmd")
+        fi
+    done < "$WORKLOAD_PATH" || return
+
+    if (( lineno == 0 )); then
+        echo "ERROR: $WORKLOAD_PATH is empty" >&2
+        return 1
+    else
+        execute_group "$cur_group" "$group_lineno" "${group_cmds[@]}" || return
+    fi
+}
+
+# $1 - group name
+# $2 - first command ID
+# $@ - make commands
+execute_group() {
+    local group_name="$1"
+    local cmd_id="$2"
+    shift 2 || return
+
+    local finished_jobs=0
+    local total_jobs="$#"
+    local passed_jobs=0
+    local -a failed_cmd_ids=()
+    local running_jobs=0
+
+    print_progress_running
+
+    local cmd_line
+    for cmd_line in "$@"; do
+        execute_command "$cmd_id" "$cmd_line" &
+        pid_to_cmd_id["$!"]="$cmd_id"
+
+        ((++running_jobs))
+        ((++cmd_id))
+
+        print_progress_running
+
+        while (( running_jobs >= MAX_JOBS )); do
+            reap_one_job
+        done
+    done
+
+    while (( running_jobs > 0 )); do
+        reap_one_job
+    done
+
+    print_progress_last
+
+    # if any command fails, the whole group fails
+    if (( ${#failed_cmd_ids[@]} > 0 )); then
+        print_failed_tests "${failed_cmd_ids[@]}"
+        return 1
+    fi
+}
+
+# uses execute_group() locals
+reap_one_job() {
+    local pid
+
+    if ! wait -n -p pid; then
+        local failed_cmd_id="${pid_to_cmd_id[$pid]}"
+        print_progress_failed "$failed_cmd_id"
+        failed_cmd_ids+=("$failed_cmd_id")
+    else
+        ((++passed_jobs))
+    fi
+
+    ((++finished_jobs))
+    ((running_jobs--))
+    unset "pid_to_cmd_id[$pid]"
+
+    print_progress_running
+}
+
+# uses execute_group() locals
+print_progress_running() {
+    print_progress "  | $running_jobs running "
+}
+
+# $1 - failed command ID
+print_progress_failed() {
+    print_progress "    FAILED #$1"
+    echo
+}
+
+print_progress_last() {
+    print_progress
+    echo
+}
+
+# uses execute_group() locals
+# $1 - report suffix (optional)
+print_progress() {
+    if (( USE_TTY )); then
+        printf '\r\033[K[%s] %s/%s finished (%s passed, %s failed)%s' \
+            "$group_name" \
+            "$finished_jobs" \
+            "$total_jobs" \
+            "$passed_jobs" \
+            "${#failed_cmd_ids[@]}" \
+            "${1:-}"
+    else
+        printf '[%s] %s/%s finished (%s passed, %s failed)%s\n' \
+            "$group_name" \
+            "$finished_jobs" \
+            "$total_jobs" \
+            "$passed_jobs" \
+            "${#failed_cmd_ids[@]}" \
+            "${1:-}"
+    fi
+}
+
+# $@ - failed command IDs
+print_failed_tests() {
+    local -a sorted_cmd_ids
+    mapfile -t sorted_cmd_ids < <(printf '%s\n' "$@" | sort -n) || return
+
+    local cmd_log_file
+    local cmd_to_reproduce
+    local failed_cmd_id
+
+    echo
+    for failed_cmd_id in "${sorted_cmd_ids[@]}"; do
+        cmd_log_file="$OUT_WORKLOAD_DIR/$failed_cmd_id/command.log"
+        cmd_to_reproduce="$(head -n 1 "$cmd_log_file")" || return
+
+        echo "FAILED #$failed_cmd_id"
+        echo "  Log file:  $cmd_log_file"
+        echo "  Reproduce: $cmd_to_reproduce"
+        echo
+    done
+}
+
+# $1 - command ID
+# $2 - command (string of make arguments)
+execute_command() {
+    trap - INT QUIT TERM
+
+    local cmd_out_dir="$OUT_WORKLOAD_DIR/$1"
+    mkdir -p "$cmd_out_dir" || return
+
+    local -a cmd_array
+    read -r -a cmd_array <<< "$2"
+    cmd_array+=('INPUT_IN_FILE=1' "SIM_OUT_DIR=$cmd_out_dir")
+
+    local cmd_log_file="$cmd_out_dir/command.log"
+    {
+        echo "make ${cmd_array[*]}"
+        echo
+
+        # execute the make command itself
+        make "${cmd_array[@]}"
+    } > "$cmd_log_file" 2>&1
+}
+
+# $1 - signal name
+handle_sig() {
+    local sig="$1"
+    local child_sig
+
+    echo
+    case "$sig" in
+        INT)
+            echo 'Received SIGINT, stopping active jobs ...' >&2
+            child_sig=INT
+            ;;
+        QUIT)
+            echo 'Received SIGQUIT, killing active jobs ...' >&2
+            child_sig=KILL
+            ;;
+        TERM)
+            echo 'Received SIGTERM, stopping active jobs ...' >&2
+            child_sig=TERM
+            ;;
+        *)
+            echo 'ERROR: Received unhandled signal!' >&2
+            exit 1
+            ;;
+    esac
+
+    kill_jobs "$child_sig"
+
+    case "$sig" in
+        INT) exit 130 ;;
+        QUIT) exit 131 ;;
+        TERM) exit 143 ;;
+    esac
+}
+
+# $1 - signal name
+kill_jobs() {
+    local pids
+    pids="$(jobs -p)" || return
+
+    if [ "$pids" ]; then
+        printf 'Stopping commands ' >&2
+
+        local pid
+        for pid in $pids; do
+            if [[ -v "pid_to_cmd_id[$pid]" ]]; then
+                printf '%s ' "#${pid_to_cmd_id[$pid]}" >&2
+            else
+                printf '<unknown> ' >&2
+            fi
+
+            # send signal to the whole process group
+            kill -"$1" -- "-$pid" 2>/dev/null || true
+        done
+        echo '...' >&2
+
+        # plain 'wait' tends to suffer from races here
+        for pid in $pids; do
+            wait "$pid" 2>/dev/null || true
+        done
+
+        echo 'All jobs terminated!' >&2
+    else
+        echo 'There are no active jobs.' >&2
+    fi
+}
+
+trap 'handle_sig INT' INT
+trap 'handle_sig QUIT' QUIT
+trap 'handle_sig TERM' TERM
+
+main "$@"
