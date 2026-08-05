@@ -101,6 +101,12 @@ TOP_MODULE = tb
 CPP_WRAPPER = $(abspath $(TB_DIR)/$(TOP_MODULE)_wrapper.cpp)
 TOP_CLASS = V$(TOP_MODULE)
 
+# TODO: start testing using third-party test suites
+# TODO: add support for popular benchmarks
+SUPPORTED_TEST_GROUPS = simple_asm\
+                        simple_c\
+                        simple_libc
+
 ################################################################################
 #                         Process user-defined macros                          #
 ################################################################################
@@ -110,6 +116,18 @@ TEST_GROUP ?= simple_asm
 TEST_NAME ?= hello_world
 SIM_OUT_DIR ?= $(OUT_DIR)
 X_VAL ?= 0
+
+ifeq ($(filter $(TEST_GROUP),$(SUPPORTED_TEST_GROUPS)),)
+    $(error Invalid TEST_GROUP value '$(TEST_GROUP)')
+endif
+
+ifndef TEST_NAME
+    $(error TEST_NAME cannot be empty)
+endif
+
+ifndef SIM_OUT_DIR
+    $(error SIM_OUT_DIR cannot be empty)
+endif
 
 ifeq ($(filter $(X_VAL),0 1 2),)
     $(error X_VAL must be 0, 1, or 2 (got '$(X_VAL)'))
@@ -251,11 +269,8 @@ open_waves:
 	@test -f $(WAVES_FILE) || { echo "First use 'debug' target to generate '$(WAVES_FILE)' file."; false; }
 	$(GTKWAVE) $(WAVES_FILE) $(UTILS_DIR)/config.gtkw
 
-# TODO: start testing using third-party test suites
-# TODO: add support for popular benchmarks
-# supported test group names
 print_test_groups:
-	@find $(TESTS_DIR) -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
+	@echo $(SUPPORTED_TEST_GROUPS) | tr ' ' '\n'
 
 print_test_names:
 	@$(MAKE) -C $(TESTS_DIR)/$(TEST_GROUP) --no-print-directory $@
