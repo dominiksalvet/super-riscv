@@ -48,6 +48,10 @@ ACCEPTED MACROS:
                           if not existing, empty input is used instead
 endef
 
+ifneq ($(words x$(CURDIR)x),1)
+    $(error Current working directory path contains spaces: "$(CURDIR)")
+endif
+
 RTL_DIR = rtl
 TB_DIR = tb
 TESTS_DIR = tests
@@ -118,7 +122,7 @@ SIM_OUT_DIR ?= $(OUT_DIR)
 X_VAL ?= 0
 
 ifeq ($(filter $(TEST_GROUP),$(SUPPORTED_TEST_GROUPS)),)
-    $(error Invalid TEST_GROUP value '$(TEST_GROUP)')
+    $(error Invalid TEST_GROUP value "$(TEST_GROUP)")
 endif
 
 ifndef TEST_NAME
@@ -130,7 +134,7 @@ ifndef SIM_OUT_DIR
 endif
 
 ifeq ($(filter $(X_VAL),0 1 2),)
-    $(error X_VAL must be 0, 1, or 2 (got '$(X_VAL)'))
+    $(error X_VAL must be 0, 1, or 2 (got "$(X_VAL)"))
 endif
 
 ifeq ($(X_VAL), 2)
