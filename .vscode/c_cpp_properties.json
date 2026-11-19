@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/newlib/riscv64-unknown-elf/include",
+                "/usr/share/verilator/include",
+                "${workspaceFolder}/out/builds/xassign0"
+            ]
+        }
+    ],
+    "version": 4
+}
