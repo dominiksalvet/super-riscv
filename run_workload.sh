@@ -48,6 +48,7 @@ init_env() {
     fi
 }
 
+# $1 - workload name (optional)
 main() {
     echo 'Initializing execution environment ...'
     init_env "${1:-}" || return
